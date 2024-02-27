@@ -64,7 +64,7 @@ def update_teacher():
     return
 
 # delete teacher
-@app.route('api/teacher', methods=['DELETE'])
+@app.route('/api/teacher', methods=['DELETE'])
 def del_teacher():
     return
 
