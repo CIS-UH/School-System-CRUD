@@ -25,24 +25,58 @@ app.config['DEBUG'] = True # allow to show errors in browser
 # of the classroom they are trying to access
 
 # return all classrooms
-@app.route('/api/classroom', methods=['GET'])
+@app.route('/api/classroom/all', methods=['GET'])
 def get_classrooms():
-    return
+    return jsonify(sql.execute_read_query(connection,'SELECT * from classroom'))
+
+# return all classrooms from a specific facility
+@app.route('/api/classroom/', methods=['GET'])
+def get_classrooms_id():
+    classrooms = None
+    if 'facility' in request.args: #only if an id is provided, proceed
+        facility = int(request.args['facility'])
+        classrooms = sql.execute_read_query(connection, 'SELECT * from classroom WHERE facility = %s', facility)
+    else:
+        return 'ERROR: no facility provided'
+    results = [] #resulting classroom(s) to return
+    
+    for classroom in classrooms:
+        if classroom['id'] == id:
+            results.append(classroom)
+    return jsonify(results)
 
 # add new classroom to db
 @app.route('/api/classroom', methods=['POST'])
 def add_classroom():
-    return
+    classrooms = sql.execute_read_query(connection, query=('INSERT INTO classrooms (%s,%s,%s,%s)', (request.args['id'],request.args['capacity'],request.args['name'],request.args['facility']))) # this sql may be wrong / incomplete
+    return 'Classroom successfully added!'
 
 # update classroom
 @app.route('/api/classroom', methods=['PUT'])
 def update_classroom():
-    return
+    if 'id' in request.args: #only if a facility is provided, proceed
+        id = int(request.args['id'])
+        classroom = sql.execute_read_query(connection, 'SELECT * FROM classroom WHERE id = %s', (id)) # this sql may be wrong / incomplete
+
+        if 'capacity' in request.args:
+            sql.execute_query(connection, query=('UPDATE classroom SET capacity = %s WHERE id = %s', (request.args['capacity'],id)))
+        if 'name' in request.args:
+            sql.execute_query(connection, query=('UPDATE classroom SET name = %s WHERE id = %s', (request.args['name'],id)))
+        if 'room'in request.args:
+            sql.execute_query(connection, query=('UPDATE classroom SET room = %s WHERE id = %s', (request.args['room'],id)))
+    else:
+        return 'ERROR: no classroom ID provided'
+    return 'Classroom successfully updated!'
 
 # delete a classroom
 @app.route('/api/classroom', methods=['DELETE'])
 def del_classroom():
-    return
+    if 'id' in request.args:
+        sql.execute_query(connection,query=('DELETE from classroom WHERE id = %s', request.args['id']))
+    else:
+        return 'ERROR: no classroom ID provided'
+    
+    return 'Classroom successfully deleted!'
 
 # TEACHER METHODS
 # no more than 10 children per teacher
