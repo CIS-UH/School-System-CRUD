@@ -6,11 +6,7 @@ from flask import request, make_response
 
 # to-do list
 '''
-    create tables in db
-
     needs login api before this is a true boiler plate for this project (idk how to do it)
-
-    finish all of these methods (obviously)
 '''
 
 #connect to db
@@ -20,56 +16,29 @@ connection = sql.create_connection()
 app = flask.Flask(__name__) # set up app
 app.config['DEBUG'] = True # allow to show errors in browser
 
-# password 'password' hashed
-masterPassword = "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"
-masterUsername = 'username'
-validTokens = {"100", "200", "300", "400"}
+#Pre-configured username and password
+USERNAME = "admin"
+PASSWORD = "password"
 
-authorizedusers = [
-    {
-        #default user
-        'username': 'username',
-        'password': 'password',
-        'role': 'default',
-        'token': '0',
-        'admininfo': None
-    },
-    {
-        #admin user
-        'username': 'admin',
-        'password': '123450',
-        'role': 'admin',
-        'token': '1234567890',
-        'admininfo': 'michael & daniyal'
-    }
-]
+#waiting for further clarification on log in API 
+# Simple authentication function
+def authenticate(username, password):
+    return username == USERNAME and password == PASSWORD
 
-#basic http authentication, prompts username and password:
-@app.route('/authenticatedroute', methods=['GET'])
-def auth():
-    if request.authorization:
-        encoded = request.authorization.password.encode() #unicode encoding
-        hashedResult = hashlib.sha256(encoded) #hashing
-        if request.authorization.username == masterUsername and hashedResult.hexdigest() == masterPassword:
-            return '<h1> We are allowed to be here </h1>'
-    return make_response('COULD NOT VERIFY!', 401, {'WWW-Authenticate' : 'Basic realm="Login Required"'})
-
-#route to authenticate with username and password against a dataset
-@app.route('/api/login', methods = ['GET'])
-def usernamepw_example():
-    username = request.headers['username'] # get header parameter
-    pw = request.headers['password']
-    for au in authorizedusers: #loop over users and find authorized on
-        if au['username'] == username and au['password'] == pw:
-            sessiontoken = au['token']
-            adminInfo = au['admininfo']
-            returnInfo = []
-            returnInfo.append(au['role'])
-            returnInfo.append(sessiontoken)
-            returnInfo.append(adminInfo)
-
-            return jsonify(returnInfo)
-    return 'Security error'
+# Login API
+@app.route('/api/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+    
+    if not username or not password:
+        return jsonify({'message': 'Username or password missing'}), 400
+    
+    if authenticate(username, password):
+        return jsonify({'message': 'Login successful'}), 200
+    else:
+        return jsonify({'message': 'Invalid username or password'}), 401
 
 # CLASSROOM METHODS
 # all classroom methds must have a menu 
@@ -137,45 +106,93 @@ def del_classroom():
 # return all teachers
 @app.route('/api/teacher', methods=['GET'])
 def get_teachers():
-    return
+    return jsonify(sql.execute_read_query(connection,'SELECT * from teacher'))
+    
 
 # add new teacher
 @app.route('/api/teacher', methods=['POST'])
 def add_teacher():
-    return
+    teachers = sql.execute_read_query(connection, query=('INSERT INTO teacher (%s,%s,%s)', (request.args['firstname'],request.args['lastname'],request.args['room_id']))) # this sql may be wrong / incomplete
+    return 'Teacher successfully added!'
+    
 
 #update teacher
 @app.route('/api/teacher', methods=['PUT'])
 def update_teacher():
-    return
+    if 'id' in request.args:  # Only proceed if a teacher ID is provided
+        id = int(request.args['id'])
+        teacher = sql.execute_read_query(connection, 'SELECT * FROM teacher WHERE id = %s', (id,))
+
+        if not teacher:
+            return 'ERROR: Teacher ID not found'
+
+        if 'firstname' in request.args:
+            sql.execute_query(connection, 'UPDATE teacher SET firstname = %s WHERE id = %s', (request.args['firstname'], id))
+        if 'lastname' in request.args:
+            sql.execute_query(connection, 'UPDATE teacher SET lastname = %s WHERE id = %s', (request.args['lastname'], id))
+        if 'room_id' in request.args:
+            sql.execute_query(connection, 'UPDATE teacher SET room_id = %s WHERE id = %s', (request.args['room_id'], id))
+    else:
+        return 'ERROR: no teacher ID provided'
+    
+    return 'Teacher successfully updated!'
 
 # delete teacher
-@app.route('/api/teacher', methods=['DELETE'])
+@app.route('/api/classroom', methods=['DELETE'])
 def del_teacher():
-    return
-
+    if 'id' in request.args:
+        sql.execute_query(connection,query=('DELETE from teacher WHERE id = %s', request.args['id']))
+    else:
+        return 'ERROR: no classroom ID provided'
+    
+    return 'Classroom successfully deleted!'
 
 # CHILDREN METHODS
 # same rules a teacher methods
 
 # return all children 
-@app.route('/api/children', methods=['GET'])
+@app.route('/api/children/all', methods=['GET'])
 def get_children():
-    return
+    return jsonify(sql.execute_read_query(connection,'SELECT * from child'))
+    
 
 # add new children
 @app.route('/api/children', methods=['POST'])
 def add_children():
-    return
+    Children = sql.execute_read_query(connection, query=('INSERT INTO child (%s,%s,%s)', (request.args['firstname'],request.args['lastname'],request.args['age'],request.args['room_id']))) # this sql may be wrong / incomplete
+    return 'Child successfully added to classroom!'
 
 # update children
 @app.route('/api/children', methods=['PUT'])
 def update_child():
-    return
+    if 'id' in request.args:  # Only proceed if a child ID is provided
+        id = int(request.args['id'])
+        child = sql.execute_read_query(connection, 'SELECT * FROM child WHERE id = %s', (id,))
+
+        if not child:
+            return 'ERROR: Child ID not found'
+
+        if 'firstname' in request.args:
+            sql.execute_query(connection, 'UPDATE child SET firstname = %s WHERE id = %s', (request.args['firstname'], id))
+        if 'lastname' in request.args:
+            sql.execute_query(connection, 'UPDATE child SET lastname = %s WHERE id = %s', (request.args['lastname'], id))
+        if 'age' in request.args:
+            sql.execute_query(connection, 'UPDATE child SET age = %s WHERE id = %s', (request.args['age'], id))
+        if 'room_id' in request.args:
+            sql.execute_query(connection, 'UPDATE child SET room_id = %s WHERE id = %s', (request.args['room_id'], id))
+        
+        return 'Child successfully updated!'
+    else:
+        return 'ERROR: no child ID provided'
 
 # delete child from db
 @app.route('/api/children', methods=['DELETE'])
 def del_child():
-    return
+    if 'id' in request.args:
+        sql.execute_query(connection,query=('DELETE from child WHERE id = %s', request.args['id']))
+    else:
+        return 'ERROR: no classroom ID provided'
+    
+    return 'Child successfully removed from classroom!'
 
 app.run()
