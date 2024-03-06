@@ -1,7 +1,8 @@
+import hashlib
 import sql
 import flask
 from flask import jsonify
-from flask import request
+from flask import request, make_response
 
 # to-do list
 '''
@@ -18,6 +19,57 @@ connection = sql.create_connection()
 # set app name
 app = flask.Flask(__name__) # set up app
 app.config['DEBUG'] = True # allow to show errors in browser
+
+# password 'password' hashed
+masterPassword = "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"
+masterUsername = 'username'
+validTokens = {"100", "200", "300", "400"}
+
+authorizedusers = [
+    {
+        #default user
+        'username': 'username',
+        'password': 'password',
+        'role': 'default',
+        'token': '0',
+        'admininfo': None
+    },
+    {
+        #admin user
+        'username': 'admin',
+        'password': '123450',
+        'role': 'admin',
+        'token': '1234567890',
+        'admininfo': 'michael & daniyal'
+    }
+]
+
+#basic http authentication, prompts username and password:
+@app.route('/authenticatedroute', methods=['GET'])
+def auth():
+    if request.authorization:
+        encoded = request.authorization.password.encode() #unicode encoding
+        hashedResult = hashlib.sha256(encoded) #hashing
+        if request.authorization.username == masterUsername and hashedResult.hexdigest() == masterPassword:
+            return '<h1> We are allowed to be here </h1>'
+    return make_response('COULD NOT VERIFY!', 401, {'WWW-Authenticate' : 'Basic realm="Login Required"'})
+
+#route to authenticate with username and password against a dataset
+@app.route('/api/login', methods = ['GET'])
+def usernamepw_example():
+    username = request.headers['username'] # get header parameter
+    pw = request.headers['password']
+    for au in authorizedusers: #loop over users and find authorized on
+        if au['username'] == username and au['password'] == pw:
+            sessiontoken = au['token']
+            adminInfo = au['admininfo']
+            returnInfo = []
+            returnInfo.append(au['role'])
+            returnInfo.append(sessiontoken)
+            returnInfo.append(adminInfo)
+
+            return jsonify(returnInfo)
+    return 'Security error'
 
 # CLASSROOM METHODS
 # all classroom methds must have a menu 

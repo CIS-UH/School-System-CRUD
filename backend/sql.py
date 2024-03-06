@@ -14,10 +14,10 @@ def create_connection():
         print('CONNECTED')
     except Error as e:
         print(f"The error '{e}' has occured")
-        return connection
+    return connection
 
 def execute_query(connection, query):
-    cursor = connection.cursur()
+    cursor = connection.cursor()
     try:
         cursor.execute(query)
         connection.commit()
