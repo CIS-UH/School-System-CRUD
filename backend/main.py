@@ -40,6 +40,75 @@ def login():
     else:
         return jsonify({'message': 'Invalid username or password'}), 401
 
+# FACILTY METHODS
+
+# return all facilities
+@app.route('/api/facility/', methods=['GET'])
+def get_fac():
+    return jsonify(sql.execute_read_query(connection,'SELECT * from facility'))
+
+# add new facility
+@app.route('/api/facility/', methods=['POST'])
+def add_fac():
+    facs = None
+    facs = sql.execute_read_query(connection,'SELECT * from facility')
+
+    # new facility id
+    request_data =  request.get_json()
+
+    if 'id' not in request_data.keys():
+        return 'ERROR: no id provided, please try again'
+
+
+    new_fac_id = request_data['id']
+
+    for fac in facs:
+        if fac['id'] == new_fac_id:
+            return "This facility ID already exists, please try again"
+    
+    # add new facility to db
+    cursor = connection.cursor(dictionary=True)
+    cursor.execute('INSERT INTO facility VALUES (%s,%s)', (request_data['id'],request_data['name']))
+    connection.commit()
+    
+    return 'Facility successfully added'
+
+# update facility
+@app.route('/api/facility/', methods=['PUT'])
+def update_fac():
+    
+    request_data =  request.get_json()
+
+    if 'id' not in request_data.keys():
+        return 'ERROR: No id provided. Please try again'
+
+    # facility to be updated
+    update_fac_id = request_data['id']
+
+    # update facility in db
+    cursor = connection.cursor(dictionary=True)
+    cursor.execute('UPDATE facility SET name = %s WHERE id = %s', (request_data['name'],request_data['id']))
+    connection.commit()
+
+    return 'Facility successfully updated'
+
+# delete facility
+@app.route('/api/facility/', methods=['DELETE'])
+def del_fac():
+    # facility to be deleted
+    request_data = request.get_json()
+
+    if 'id' not in request_data.keys():
+        return 'ERROR: No id provided. Please try again'
+    
+    # update facility in db
+    cursor = connection.cursor()
+    cursor.execute(f'DELETE from facility WHERE id = {request_data['id']}')
+    connection.commit()
+    print("Query executed successfully")
+
+    return 'Facility successfully deleted'
+
 # CLASSROOM METHODS
 # all classroom methds must have a menu 
 # allowing the user to select the facility 
