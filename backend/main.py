@@ -93,7 +93,7 @@ def update_fac():
     return 'Facility successfully updated'
 
 # delete facility
-@app.route('/api/facility/', methods=['DELETE'])
+@app.route('/api/facility', methods=['DELETE'])
 def del_fac():
     # facility to be deleted
     request_data = request.get_json()
@@ -114,46 +114,83 @@ def del_fac():
 # allowing the user to select the facility 
 # of the classroom they are trying to access
 
+def facility_exists(facility_id):
+    classrooms = sql.execute_read_query(connection,'SELECT * from classroom')
+    # https://stackoverflow.com/questions/3897499/check-if-value-already-exists-within-list-of-dictionaries-in-python
+    if not (any(classroom.get('facility_id') == facility_id for classroom in classrooms)):
+        return False
+    return True
+
 # return all classrooms
 @app.route('/api/classroom/all', methods=['GET'])
 def get_classrooms():
     return jsonify(sql.execute_read_query(connection,'SELECT * from classroom'))
 
 # return all classrooms from a specific facility
-@app.route('/api/classroom/', methods=['GET'])
+@app.route('/api/classroom', methods=['GET'])
 def get_classrooms_id():
     classrooms = None
-    if 'facility' in request.args: #only if an id is provided, proceed
-        facility = int(request.args['facility'])
-        classrooms = sql.execute_read_query(connection, 'SELECT * from classroom WHERE facility = %s', facility)
-    else:
-        return 'ERROR: no facility provided'
-    results = [] #resulting classroom(s) to return
+    if 'facility_id' in request.args: #only if an id is provided, proceed
+        facility = int(request.args.get('facility_id'))
+
+        # execute sql query
+        classrooms = sql.execute_read_query(connection=connection,query=f'SELECT * from classroom WHERE facility_id = {facility}')
+
+        if len(classrooms) == 0:
+            return 'No classrooms were returned'
+
+        # find classroom(s) to return
+        results = []
+        for classroom in classrooms:
+            if classroom['facility_id'] == facility:
+                results.append(classroom)
+        return results
     
-    for classroom in classrooms:
-        if classroom['id'] == id:
-            results.append(classroom)
-    return jsonify(results)
+    # no facility error
+    elif 'facility_id' not in request.args:
+        return 'ERROR: no facility provided'
+    
 
 # add new classroom to db
 @app.route('/api/classroom', methods=['POST'])
 def add_classroom():
-    classrooms = sql.execute_read_query(connection, query=('INSERT INTO classrooms (%s,%s,%s,%s)', (request.args['id'],request.args['capacity'],request.args['name'],request.args['facility']))) # this sql may be wrong / incomplete
+    #   check for missing keys
+    if ('id' or 'facility_id' or 'name' or 'capacity') not in request.args:
+        return 'ERROR: missing key(s), please try again'
+    
+    facility = int(request.args['facility_id'])
+    
+    if not facility_exists(facility):
+        return 'ERROR: provied facility_id does not exist in database'
+    
+
+    classrooms = sql.execute_read_query(connection,f'SELECT * from classroom WHERE facility_id = {facility}')
+    for classroom in classrooms:
+        if request.args['id'] == classroom['id']:
+            return 'ERROR: id provided is already in classroom'
+      
+    classrooms = sql.execute_query(connection, query=f"INSERT INTO classroom (id,capacity,name,facility_id) VALUES ({request.args['id']},{request.args['capacity']},'{request.args['name']}',{request.args['facility_id']})")
+
     return 'Classroom successfully added!'
 
 # update classroom
 @app.route('/api/classroom', methods=['PUT'])
 def update_classroom():
-    if 'id' in request.args: #only if a facility is provided, proceed
-        id = int(request.args['id'])
-        classroom = sql.execute_read_query(connection, 'SELECT * FROM classroom WHERE id = %s', (id)) # this sql may be wrong / incomplete
+    if 'id' in request.args: #only if a 
+        class_id = int(request.args['id'])
+        classroom = sql.execute_read_query(connection, f'SELECT * FROM classroom WHERE id = {class_id}') # this sql may be wrong / incomplete
 
+        
+        if 'facility_id' in request.args:
+            if not facility_exists(request.args['facility_id']):
+                return 'ERROR: provied facility_id does not exist in database'
+            sql.execute_query(connection, query = f'UPDATE classroom SET facility_id = {request.args['facility_id']}')
         if 'capacity' in request.args:
-            sql.execute_query(connection, query=('UPDATE classroom SET capacity = %s WHERE id = %s', (request.args['capacity'],id)))
+            sql.execute_query(connection, query=f'UPDATE classroom SET capacity = {request.args['capacity']} WHERE id = {class_id}')
         if 'name' in request.args:
-            sql.execute_query(connection, query=('UPDATE classroom SET name = %s WHERE id = %s', (request.args['name'],id)))
-        if 'room'in request.args:
-            sql.execute_query(connection, query=('UPDATE classroom SET room = %s WHERE id = %s', (request.args['room'],id)))
+            sql.execute_query(connection, query=f"UPDATE classroom SET name = '{request.args['name']}' WHERE id = {class_id}")
+        if 'room' in request.args:
+            sql.execute_query(connection, query=f'UPDATE classroom SET room = {request.args['room']} WHERE id = {class_id}')
     else:
         return 'ERROR: no classroom ID provided'
     return 'Classroom successfully updated!'
@@ -162,7 +199,11 @@ def update_classroom():
 @app.route('/api/classroom', methods=['DELETE'])
 def del_classroom():
     if 'id' in request.args:
-        sql.execute_query(connection,query=('DELETE from classroom WHERE id = %s', request.args['id']))
+        classrooms = sql.execute_read_query(connection, 'SELECT * from classroom')
+        for classroom in classrooms:
+            if classroom['id'] != request.args['id']:
+                return 'ERROR: provided id does not exist in database'
+        sql.execute_query(connection,query=f'DELETE from classroom WHERE id = {request.args['id']}')
     else:
         return 'ERROR: no classroom ID provided'
     
