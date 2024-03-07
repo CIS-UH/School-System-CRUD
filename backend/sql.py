@@ -24,6 +24,7 @@ def execute_query(connection, query):
         print("Query executed successfully")
     except Error as e:
         print((f"The error '{e}' has occured"))
+        print(f'Attempted query: {query}')
 
 def execute_read_query(connection, query):
     cursor = connection.cursor(dictionary=True)
