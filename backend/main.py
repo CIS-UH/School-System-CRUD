@@ -117,7 +117,7 @@ def del_fac():
 def facility_exists(facility_id):
     classrooms = sql.execute_read_query(connection,'SELECT * from classroom')
     # https://stackoverflow.com/questions/3897499/check-if-value-already-exists-within-list-of-dictionaries-in-python
-    if not (any(classroom.get('facility_id') == facility_id for classroom in classrooms)):
+    if not any(classroom['id'] == int(facility_id) for classroom in classrooms):
         return False
     return True
 
@@ -213,16 +213,38 @@ def del_classroom():
 # no more than 10 children per teacher
 # regardless of classroom capacity
 
+def class_exists(room_id):
+    teachers = sql.execute_read_query(connection,'SELECT * from teacher')
+    # https://stackoverflow.com/questions/3897499/check-if-value-already-exists-within-list-of-dictionaries-in-python
+    if not any(teacher['room_id'] == int(room_id) for teacher in teachers):
+        return False
+    return True
+
+def teacher_exists(teacher_id):
+    teachers = sql.execute_read_query(connection,'SELECT * from teacher')
+    # https://stackoverflow.com/questions/3897499/check-if-value-already-exists-within-list-of-dictionaries-in-python
+    if not any(teacher['id'] == int(teacher_id) for teacher in teachers):
+        return False
+    return True
+
 # return all teachers
 @app.route('/api/teacher', methods=['GET'])
 def get_teachers():
     return jsonify(sql.execute_read_query(connection,'SELECT * from teacher'))
     
-
 # add new teacher
 @app.route('/api/teacher', methods=['POST'])
 def add_teacher():
-    teachers = sql.execute_read_query(connection, query=('INSERT INTO teacher (%s,%s,%s)', (request.args['firstname'],request.args['lastname'],request.args['room_id']))) # this sql may be wrong / incomplete
+    if 'room_id' not in request.args:
+        return 'ERROR: Please provide a room id'
+    if not class_exists(request.args['room_id']):
+        return 'ERROR: Invalid room_id'
+    if 'firstname' not in request.args:
+        return 'ERROR: Please provide a firstname'
+    if 'lastname' not in request.args:
+        return 'ERROR: Please provide a lastname'
+    teachers = sql.execute_query(connection, query=f"INSERT INTO teacher (firstname,lastname,room_id) VALUES ('{request.args['firstname']}','{request.args['lastname']}',{request.args['room_id']})")
+    
     return 'Teacher successfully added!'
     
 
@@ -230,32 +252,37 @@ def add_teacher():
 @app.route('/api/teacher', methods=['PUT'])
 def update_teacher():
     if 'id' in request.args:  # Only proceed if a teacher ID is provided
-        id = int(request.args['id'])
-        teacher = sql.execute_read_query(connection, 'SELECT * FROM teacher WHERE id = %s', (id,))
+        if 'room_id' in request.args and not class_exists(request.args['room_id']):
+            return 'ERROR: Invalid room_id'
+        
+        teacher_id = int(request.args['id'])
+        teacher = sql.execute_read_query(connection, f'SELECT * FROM teacher WHERE id = {teacher_id}')
 
         if not teacher:
             return 'ERROR: Teacher ID not found'
 
         if 'firstname' in request.args:
-            sql.execute_query(connection, 'UPDATE teacher SET firstname = %s WHERE id = %s', (request.args['firstname'], id))
+            sql.execute_query(connection, f"UPDATE teacher SET firstname = '{request.args['firstname']}' WHERE id = {teacher_id}")
         if 'lastname' in request.args:
-            sql.execute_query(connection, 'UPDATE teacher SET lastname = %s WHERE id = %s', (request.args['lastname'], id))
+            sql.execute_query(connection, f"UPDATE teacher SET lastname = '{request.args['lastname']}' WHERE id = {teacher_id}")
         if 'room_id' in request.args:
-            sql.execute_query(connection, 'UPDATE teacher SET room_id = %s WHERE id = %s', (request.args['room_id'], id))
+            sql.execute_query(connection, f'UPDATE teacher SET room_id = {request.args['room_id']} WHERE id = {teacher_id}')
     else:
         return 'ERROR: no teacher ID provided'
     
     return 'Teacher successfully updated!'
 
 # delete teacher
-@app.route('/api/classroom', methods=['DELETE'])
+@app.route('/api/teacher', methods=['DELETE'])
 def del_teacher():
     if 'id' in request.args:
-        sql.execute_query(connection,query=('DELETE from teacher WHERE id = %s', request.args['id']))
+        if not teacher_exists():
+            return 'ERROR: Invalid id'
+        sql.execute_query(connection,query=f'DELETE from teacher WHERE id = {request.args['id']}')
     else:
-        return 'ERROR: no classroom ID provided'
+        return 'ERROR: no teacher ID provided'
     
-    return 'Classroom successfully deleted!'
+    return 'Teacher successfully deleted!'
 
 # CHILDREN METHODS
 # same rules a teacher methods
