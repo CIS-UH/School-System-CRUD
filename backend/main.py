@@ -17,13 +17,13 @@ app = flask.Flask(__name__) # set up app
 app.config['DEBUG'] = True # allow to show errors in browser
 
 #Pre-configured username and password
-USERNAME = "admin"
-PASSWORD = "password"
+masterUsername = 'username'
+masterPassword = "TeacherPassword"
 
 #waiting for further clarification on log in API 
 # Simple authentication function
 def authenticate(username, password):
-    return username == USERNAME and password == PASSWORD
+    return username == masterUsername and password == masterPassword
 
 # Login API
 @app.route('/api/login', methods=['POST'])
@@ -248,14 +248,14 @@ def update_teacher():
     return 'Teacher successfully updated!'
 
 # delete teacher
-@app.route('/api/classroom', methods=['DELETE'])
+@app.route('/api/teacher', methods=['DELETE'])
 def del_teacher():
     if 'id' in request.args:
         sql.execute_query(connection,query=('DELETE from teacher WHERE id = %s', request.args['id']))
     else:
-        return 'ERROR: no classroom ID provided'
+        return 'ERROR: no Teacher ID provided'
     
-    return 'Classroom successfully deleted!'
+    return 'Teacher successfully deleted!'
 
 # CHILDREN METHODS
 # same rules a teacher methods
@@ -301,7 +301,7 @@ def del_child():
     if 'id' in request.args:
         sql.execute_query(connection,query=('DELETE from child WHERE id = %s', request.args['id']))
     else:
-        return 'ERROR: no classroom ID provided'
+        return 'ERROR: no Child ID provided'
     
     return 'Child successfully removed from classroom!'
 
