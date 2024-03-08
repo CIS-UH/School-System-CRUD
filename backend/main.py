@@ -287,6 +287,25 @@ def del_teacher():
 # CHILDREN METHODS
 # same rules a teacher methods
 
+def too_many_children(room_id):
+    classroom = sql.execute_read_query(f'SELECT * from classrooms WHERE id = {room_id}')
+
+    children_in_classroom = sql.execute_read_query(f'SELECT * from children WHERE room_id = {room_id}')
+
+    teachers_in_classroom = sql.execute_read_query(connection, f'SELECT * from teacher WHERE room_id = {room_id}')
+
+    # if too many classroom has reached capacity
+    if len(children_in_classroom) == classroom['capacity']:
+        return '100'
+    
+    # if there are not enough teachers
+    if len(children_in_classroom)/10 >= len(teachers_in_classroom):
+        return '200'
+
+
+    # if there is room for at least 1 more student in the classroom
+    return '000'
+
 # return all children 
 @app.route('/api/children/all', methods=['GET'])
 def get_children():
@@ -296,8 +315,28 @@ def get_children():
 # add new children
 @app.route('/api/children', methods=['POST'])
 def add_children():
-    Children = sql.execute_read_query(connection, query=('INSERT INTO child (%s,%s,%s)', (request.args['firstname'],request.args['lastname'],request.args['age'],request.args['room_id']))) # this sql may be wrong / incomplete
-    return 'Child successfully added to classroom!'
+    if 'id' not in request.args:
+        return 'ERROR: no id provided'
+    if 'firstname' not in request.args:
+        return 'ERROR: no firstname provided'
+    if 'lastname' not in request.args:
+        return 'ERROR: no lastname provided'
+    if 'room_id' not in request.args:
+        return 'ERROR: no room_id provided'
+
+    room_id = int(request.args['room_id'])
+    if not class_exists(room_id):
+        return 'ERROR: there is no classroom with that id in the database'
+    
+    room_status_code = too_many_children(room_id)
+    
+    if room_status_code == '100':
+        return "ERROR: The room with that id is at capacity"
+    elif room_status_code == '200':
+        return 'ERROR: The room with that id needs another teacher before this student can be added'
+    else:
+        sql.execute_query(connection, query=f"INSERT INTO child (firstname, lastname, age, room_id,id) VALUES ('{request.args['firstname']}','{request.args['lastname']}',{request.args['age']},{request.args['room_id']},{request.args['id']})") 
+        return 'Child successfully added to classroom!'
 
 # update children
 @app.route('/api/children', methods=['PUT'])
