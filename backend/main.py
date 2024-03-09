@@ -23,7 +23,12 @@ masterPassword = "TeacherPassword"
 #waiting for further clarification on log in API 
 # Simple authentication function
 def authenticate(username, password):
-    return username == masterUsername and password == masterPassword
+    if request.authorization:
+        encoded = request.authorization.password.encode #unicode encoding
+        hashedResult = hashlib.sha256(encoded) #hashing
+        if request.authorization.username == masterUsername and hashedResult.hexdigest() == masterPassword:
+            return "<h1> We are allowed to be here </h1>"
+    return make_response("COULD NOT VERIFY!", 501, {"WWW-Authenticate" : "Basic realm = Login Required"})
 
 # Login API
 @app.route('/api/login', methods=['POST'])
@@ -220,12 +225,16 @@ def teacher_exists(teacher_id):
     return True
 
 # return all teachers
-@app.route('/api/teacher', methods=['GET'])
+@app.route('/api/teacher/all', methods=['GET'])
 def get_teachers():
+    return jsonify(sql.execute_read_query(connection,'SELECT * from teacher'))
+
+#return teachers from one room
+@app.route('/api/teacher', methods=['GET'])
+def get_teachers_from_room():
     if 'room' in request.args:
-        return jsonify(sql.execute_read_query(connection,'SELECT * from teacher'))
-    else:
-        return 'ERROR: Please enter a room id'
+        room = request.args['room']
+        return jsonify(sql.execute_read_query(connection, f"SELECT * FROM teacher WHERE room = '{room}'"))
     
 # add new teacher
 @app.route('/api/teacher', methods=['POST'])
@@ -282,15 +291,15 @@ def del_teacher():
 # same rules a teacher methods
 
 def too_many_children(room):
-    classroom = sql.execute_read_query(f'SELECT * from classrooms WHERE id = {room}')
+    classroom = sql.execute_read_query(f"SELECT * from classrooms WHERE id = {room}")
 
-    children_in_classroom = sql.execute_read_query(connection,f'SELECT * from child WHERE room = {room}')
+    children_in_classroom = sql.execute_read_query(connection, f"SELECT * from child WHERE room = {room}")
 
-    teachers_in_classroom = sql.execute_read_query(connection, f'SELECT * from teacher WHERE room = {room}')
+    teachers_in_classroom = sql.execute_read_query(connection, f"SELECT * from teacher WHERE room = {room}")
 
-    # if too many classroom has reached capacity
-    if len(children_in_classroom) == classroom[0]['capacity']:
-        print(f'Classroom capacity is {classroom[0]['capacity']}')
+    # if too many classrooms have reached capacity
+    if len(children_in_classroom) == classroom[0]["capacity"]:
+        print(f"Classroom capacity is {classroom[0]['capacity']}")
         return '100'
     
     # if there are not enough teachers
@@ -310,7 +319,8 @@ def get_children():
 @app.route('/api/children', methods=['GET'])
 def get_children_from_room():
     if 'room' in request.args:
-        return jsonify(sql.execute_read_query(connection,f'SELECT * from child WHERE room = {request.args['room']}'))
+        room = request.args['room']
+        return jsonify(sql.execute_read_query(connection, f"SELECT * FROM child WHERE room = '{room}'"))
     
     return 'ERROR: no room provided'
     
