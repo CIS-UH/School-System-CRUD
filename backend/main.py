@@ -43,12 +43,12 @@ def login():
 # FACILTY METHODS
 
 # return all facilities
-@app.route('/api/facility/', methods=['GET'])
+@app.route('/api/facility', methods=['GET'])
 def get_fac():
     return jsonify(sql.execute_read_query(connection,'SELECT * from facility'))
 
 # add new facility
-@app.route('/api/facility/', methods=['POST'])
+@app.route('/api/facility', methods=['POST'])
 def add_fac():
     facs = None
     facs = sql.execute_read_query(connection,'SELECT * from facility')
@@ -74,7 +74,7 @@ def add_fac():
     return 'Facility successfully added'
 
 # update facility
-@app.route('/api/facility/', methods=['PUT'])
+@app.route('/api/facility', methods=['PUT'])
 def update_fac():
     
     request_data =  request.get_json()
@@ -95,19 +95,13 @@ def update_fac():
 # delete facility
 @app.route('/api/facility', methods=['DELETE'])
 def del_fac():
-    # facility to be deleted
-    request_data = request.get_json()
-
-    if 'id' not in request_data.keys():
-        return 'ERROR: No id provided. Please try again'
+    if 'id' in request.args:
+        facilities = sql.execute_read_query(connection, 'SELECT * FROM facility')
+        sql.execute_query(connection, query=f"DELETE FROM facility WHERE id = {request.args['id']}")
+    else:
+        return 'ERROR: no Facility ID provided'
     
-    # update facility in db
-    cursor = connection.cursor()
-    cursor.execute('DELETE from facility WHERE id = %s', (request_data['id']))
-    connection.commit()
-    print("Query executed successfully")
-
-    return 'Facility successfully deleted'
+    return 'Facility successfully deleted!'
 
 # CLASSROOM METHODS
 # all classroom methds must have a menu 
@@ -173,33 +167,36 @@ def add_classroom():
 # update classroom
 @app.route('/api/classroom', methods=['PUT'])
 def update_classroom():
-    if 'id' in request.args: #only if a 
+    if 'id' in request.args:
         class_id = int(request.args['id'])
-        classroom = sql.execute_read_query(connection, f'SELECT * FROM classroom WHERE id = {class_id}') # this sql may be wrong / incomplete
+        classroom = sql.execute_read_query(connection, f'SELECT * FROM classroom WHERE id = {class_id}')
 
-        
+        if not classroom:
+            return 'ERROR: Classroom ID not found'
+
         if 'facility' in request.args:
             if not facility_exists(request.args['facility']):
-                return 'ERROR: provied facility does not exist in database'
-            sql.execute_query(connection, query = f'UPDATE classroom SET facility = {request.args['facility']}')
+                return 'ERROR: Provided facility does not exist in the database'
+            sql.execute_query(connection, query = f"UPDATE classroom SET facility = '{request.args['facility']}' WHERE id = {class_id}")
         if 'capacity' in request.args:
             sql.execute_query(connection, query=f"UPDATE classroom SET capacity = {request.args['capacity']} WHERE id = {class_id}")
         if 'name' in request.args:
             sql.execute_query(connection, query=f"UPDATE classroom SET name = '{request.args['name']}' WHERE id = {class_id}")
         if 'room' in request.args:
             sql.execute_query(connection, query=f"UPDATE classroom SET room = '{request.args['room']}' WHERE id = {class_id}")
+    else:
+        return 'ERROR: No classroom ID provided'
 
-        return 'ERROR: no classroom ID provided'
     return 'Classroom successfully updated!'
 
 # delete a classroom
 @app.route('/api/classroom', methods=['DELETE'])
 def del_classroom():
     if 'id' in request.args:
-        classrooms = sql.execute_read_query(connection, 'SELECT * from classroom')
+        classrooms = sql.execute_read_query(connection, 'SELECT * FROM classroom')
         if not class_exists(request.args['id']):
-            return 'ERROR: provided id does not exist in database'
-        sql.execute_query(connection,query=f'DELETE from classroom WHERE id = {request.args['id']}')
+            return 'ERROR: provided id does not exist in the database'
+        sql.execute_query(connection, query=f"DELETE FROM classroom WHERE id = {request.args['id']}")
     else:
         return 'ERROR: no classroom ID provided'
     
@@ -265,7 +262,7 @@ def update_teacher():
         if 'lastname' in request.args:
             sql.execute_query(connection, f"UPDATE teacher SET lastname = '{request.args['lastname']}' WHERE id = {teacher_id}")
         if 'room' in request.args:
-            sql.execute_query(connection, f'UPDATE teacher SET room = {request.args['room']} WHERE id = {teacher_id}')
+            sql.execute_query(connection, f"UPDATE teacher SET room = '{request.args['room']}' WHERE id = {teacher_id}")  # Enclose room value in single quotes
     else:
         return 'ERROR: no teacher ID provided'
     
@@ -275,19 +272,18 @@ def update_teacher():
 @app.route('/api/teacher', methods=['DELETE'])
 def del_teacher():
     if 'id' in request.args:
-        if not teacher_exists():
-            return 'ERROR: Invalid id'
-        sql.execute_query(connection,query= f"UPDATE classroom SET facility_id = '{request.args['facility_id']}'")
-
-        return 'ERROR: no classroom ID provided'
-    
-    return 'Teacher successfully deleted!'
+        teacher_id = request.args['id']
+        query = f"DELETE FROM teacher WHERE id = {teacher_id}"
+        sql.execute_query(connection, query=query)
+        return 'Teacher successfully removed!'
+    else:
+        return 'ERROR: no Child ID provided'
 
 # CHILDREN METHODS
 # same rules a teacher methods
 
 def too_many_children(room):
-    classroom = sql.execute_read_query(f'SELECT * from classrooms WHERE id = {room}')
+    classroom = sql.execute_read_query(f'SELECT * from classrooms WHERE room = {room}')
 
     children_in_classroom = sql.execute_read_query(f'SELECT * from children WHERE room = {room}')
 
