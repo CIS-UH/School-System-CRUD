@@ -103,7 +103,7 @@ def del_fac():
     
     # update facility in db
     cursor = connection.cursor()
-    cursor.execute(f'DELETE from facility WHERE id = {request_data['id']}')
+    cursor.execute('DELETE from facility WHERE id = %s', (request_data['id']))
     connection.commit()
     print("Query executed successfully")
 
@@ -184,14 +184,14 @@ def update_classroom():
         if 'facility_id' in request.args:
             if not facility_exists(request.args['facility_id']):
                 return 'ERROR: provied facility_id does not exist in database'
-            sql.execute_query(connection, query = f'UPDATE classroom SET facility_id = {request.args['facility_id']}')
+            sql.execute_query(connection, query = f"UPDATE classroom SET facility_id = {request.args['facility_id']}")
         if 'capacity' in request.args:
-            sql.execute_query(connection, query=f'UPDATE classroom SET capacity = {request.args['capacity']} WHERE id = {class_id}')
+            sql.execute_query(connection, query=f"UPDATE classroom SET capacity = {request.args['capacity']} WHERE id = {class_id}")
         if 'name' in request.args:
             sql.execute_query(connection, query=f"UPDATE classroom SET name = '{request.args['name']}' WHERE id = {class_id}")
         if 'room' in request.args:
-            sql.execute_query(connection, query=f'UPDATE classroom SET room = {request.args['room']} WHERE id = {class_id}')
-    else:
+            sql.execute_query(connection, query=f"UPDATE classroom SET room = '{request.args['room']}' WHERE id = {class_id}")
+
         return 'ERROR: no classroom ID provided'
     return 'Classroom successfully updated!'
 
@@ -203,7 +203,7 @@ def del_classroom():
         for classroom in classrooms:
             if classroom['id'] != request.args['id']:
                 return 'ERROR: provided id does not exist in database'
-        sql.execute_query(connection,query=f'DELETE from classroom WHERE id = {request.args['id']}')
+        sql.execute_query(connection,query=f"DELETE FROM classroom WHERE id = {request.args['id']}")
     else:
         return 'ERROR: no classroom ID provided'
     
@@ -266,7 +266,7 @@ def update_teacher():
         if 'lastname' in request.args:
             sql.execute_query(connection, f"UPDATE teacher SET lastname = '{request.args['lastname']}' WHERE id = {teacher_id}")
         if 'room_id' in request.args:
-            sql.execute_query(connection, f'UPDATE teacher SET room_id = {request.args['room_id']} WHERE id = {teacher_id}')
+            sql.execute_query(connection, f"UPDATE teacher SET room_id = {request.args['room_id']} WHERE id = {teacher_id}")
     else:
         return 'ERROR: no teacher ID provided'
     
@@ -278,8 +278,8 @@ def del_teacher():
     if 'id' in request.args:
         if not teacher_exists():
             return 'ERROR: Invalid id'
-        sql.execute_query(connection,query=f'DELETE from teacher WHERE id = {request.args['id']}')
-    else:
+        sql.execute_query(connection,query= f"UPDATE classroom SET facility_id = '{request.args['facility_id']}'")
+
         return 'ERROR: no classroom ID provided'
     
     return 'Teacher successfully deleted!'
@@ -296,40 +296,64 @@ def get_children():
 # add new children
 @app.route('/api/children', methods=['POST'])
 def add_children():
-    Children = sql.execute_read_query(connection, query=('INSERT INTO child (%s,%s,%s)', (request.args['firstname'],request.args['lastname'],request.args['age'],request.args['room_id']))) # this sql may be wrong / incomplete
+    # Extract data from JSON request body
+    data = request.json
+    
+    # Ensure required fields are present
+    if 'firstname' not in data or 'lastname' not in data or 'age' not in data or 'room_id' not in data:
+        return 'ERROR: Incomplete data provided'
+    
+    # Extracting data from the JSON object
+    firstname = data['firstname']
+    lastname = data['lastname']
+    age = data['age']
+    room_id = data['room_id']
+
+    # Construct SQL query to insert child data into the database
+    query = f"INSERT INTO child (firstname, lastname, age, room_id) VALUES ('{firstname}', '{lastname}', {age}, {room_id})"
+    sql.execute_query(connection, query=query)
+    
     return 'Child successfully added to classroom!'
 
 # update children
 @app.route('/api/children', methods=['PUT'])
 def update_child():
-    if 'id' in request.args:  # Only proceed if a child ID is provided
-        id = int(request.args['id'])
-        child = sql.execute_read_query(connection, 'SELECT * FROM child WHERE id = %s', (id,))
-
-        if not child:
-            return 'ERROR: Child ID not found'
-
-        if 'firstname' in request.args:
-            sql.execute_query(connection, 'UPDATE child SET firstname = %s WHERE id = %s', (request.args['firstname'], id))
-        if 'lastname' in request.args:
-            sql.execute_query(connection, 'UPDATE child SET lastname = %s WHERE id = %s', (request.args['lastname'], id))
-        if 'age' in request.args:
-            sql.execute_query(connection, 'UPDATE child SET age = %s WHERE id = %s', (request.args['age'], id))
-        if 'room_id' in request.args:
-            sql.execute_query(connection, 'UPDATE child SET room_id = %s WHERE id = %s', (request.args['room_id'], id))
-        
-        return 'Child successfully updated!'
-    else:
-        return 'ERROR: no child ID provided'
+    # Extract data from JSON request body
+    data = request.json
+    
+    # Ensure 'id' is provided
+    if 'id' not in data:
+        return 'ERROR: No child ID provided'
+    
+    # Extract child ID
+    child_id = data['id']
+    
+    # Check if child with provided ID exists
+    child = sql.execute_read_query(connection, f'SELECT * FROM teacher WHERE id = {child_id}')
+    if not child:
+        return 'ERROR: Child ID not found'
+    
+    # Update child information if provided
+    if 'firstname' in data:
+        sql.execute_query(connection, 'UPDATE child SET firstname = %s WHERE id = %s', (data['firstname'], child_id))
+    if 'lastname' in data:
+        sql.execute_query(connection, 'UPDATE child SET lastname = %s WHERE id = %s', (data['lastname'], child_id))
+    if 'age' in data:
+        sql.execute_query(connection, 'UPDATE child SET age = %s WHERE id = %s', (data['age'], child_id))
+    if 'room_id' in data:
+        sql.execute_query(connection, 'UPDATE child SET room_id = %s WHERE id = %s', (data['room_id'], child_id))
+    
+    return 'Child successfully updated!'
 
 # delete child from db
 @app.route('/api/children', methods=['DELETE'])
 def del_child():
     if 'id' in request.args:
-        sql.execute_query(connection,query=('DELETE from child WHERE id = %s', request.args['id']))
+        child_id = request.args['id']
+        query = f"DELETE FROM child WHERE id = {child_id}"
+        sql.execute_query(connection, query=query)
+        return 'Child successfully removed from classroom!'
     else:
         return 'ERROR: no Child ID provided'
-    
-    return 'Child successfully removed from classroom!'
 
 app.run()
