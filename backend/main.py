@@ -188,7 +188,7 @@ def update_classroom():
             sql.execute_query(connection, query=f"UPDATE classroom SET name = '{request.args['name']}' WHERE id = {class_id}")
         if 'room' in request.args:
             sql.execute_query(connection, query=f"UPDATE classroom SET room = '{request.args['room']}' WHERE id = {class_id}")
-
+    else:
         return 'ERROR: no classroom ID provided'
     return 'Classroom successfully updated!'
 
