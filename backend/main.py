@@ -287,14 +287,15 @@ def del_teacher():
 # same rules a teacher methods
 
 def too_many_children(room):
-    classroom = sql.execute_read_query(f'SELECT * from classrooms WHERE id = {room}')
+    classroom = sql.execute_read_query(connection,f'SELECT * from classroom WHERE id = {room}')
 
-    children_in_classroom = sql.execute_read_query(f'SELECT * from children WHERE room = {room}')
+    children_in_classroom = sql.execute_read_query(connection,f'SELECT * from child WHERE room = {room}')
 
     teachers_in_classroom = sql.execute_read_query(connection, f'SELECT * from teacher WHERE room = {room}')
 
     # if too many classroom has reached capacity
-    if len(children_in_classroom) == classroom['capacity']:
+    if len(children_in_classroom) == classroom[0]['capacity']:
+        print(f'Classroom capacity is {classroom[0]['capacity']}')
         return '100'
     
     # if there are not enough teachers
@@ -309,19 +310,27 @@ def too_many_children(room):
 @app.route('/api/children/all', methods=['GET'])
 def get_children():
     return jsonify(sql.execute_read_query(connection,'SELECT * from child'))
+
+# return all children in a provided room
+@app.route('/api/children', methods=['GET'])
+def get_children_from_room():
+    if 'room' in request.args:
+        return jsonify(sql.execute_read_query(connection,f'SELECT * from child WHERE room = {request.args['room']}'))
+    
+    return 'ERROR: no room provided'
     
 
 # add new children
 @app.route('/api/children', methods=['POST'])
 def add_children():
-    if 'id' not in request.args:
-        return 'ERROR: no id provided'
     if 'firstname' not in request.args:
         return 'ERROR: no firstname provided'
     if 'lastname' not in request.args:
         return 'ERROR: no lastname provided'
     if 'room' not in request.args:
         return 'ERROR: no room provided'
+    if 'age' not in request.args:
+        return 'ERROR: no age provided'
 
     room = int(request.args['room'])
     if not class_exists(room):
@@ -334,7 +343,7 @@ def add_children():
     elif room_status_code == '200':
         return 'ERROR: The room with that id needs another teacher before this student can be added'
     else:
-        sql.execute_query(connection, query=f"INSERT INTO child (firstname, lastname, age, room,id) VALUES ('{request.args['firstname']}','{request.args['lastname']}',{request.args['age']},{request.args['room']},{request.args['id']})") 
+        sql.execute_query(connection, query=f"INSERT INTO child (firstname, lastname, age, room) VALUES ('{request.args['firstname']}','{request.args['lastname']}',{request.args['age']},{request.args['room']})") 
         return 'Child successfully added to classroom!'
 
 # update children
