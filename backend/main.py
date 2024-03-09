@@ -276,13 +276,12 @@ def update_teacher():
 @app.route('/api/teacher', methods=['DELETE'])
 def del_teacher():
     if 'id' in request.args:
-        if not teacher_exists():
-            return 'ERROR: Invalid id'
-        sql.execute_query(connection,query= f"UPDATE classroom SET facility_id = '{request.args['facility_id']}'")
-
-        return 'ERROR: no classroom ID provided'
-    
-    return 'Teacher successfully deleted!'
+        teacher_id = request.args['id']
+        query = f"DELETE FROM teacher WHERE id = {teacher_id}"
+        sql.execute_query(connection, query=query)
+        return 'Teacher successfully removed from classroom!'
+    else:
+        return 'ERROR: no Teacher ID provided'
 
 # CHILDREN METHODS
 # same rules a teacher methods
@@ -321,30 +320,26 @@ def add_children():
 # update children
 @app.route('/api/children', methods=['PUT'])
 def update_child():
-    # Extract data from JSON request body
-    data = request.json
-    
-    # Ensure 'id' is provided
-    if 'id' not in data:
-        return 'ERROR: No child ID provided'
-    
-    # Extract child ID
-    child_id = data['id']
-    
-    # Check if child with provided ID exists
-    child = sql.execute_read_query(connection, f'SELECT * FROM teacher WHERE id = {child_id}')
-    if not child:
-        return 'ERROR: Child ID not found'
-    
-    # Update child information if provided
-    if 'firstname' in data:
-        sql.execute_query(connection, 'UPDATE child SET firstname = %s WHERE id = %s', (data['firstname'], child_id))
-    if 'lastname' in data:
-        sql.execute_query(connection, 'UPDATE child SET lastname = %s WHERE id = %s', (data['lastname'], child_id))
-    if 'age' in data:
-        sql.execute_query(connection, 'UPDATE child SET age = %s WHERE id = %s', (data['age'], child_id))
-    if 'room_id' in data:
-        sql.execute_query(connection, 'UPDATE child SET room_id = %s WHERE id = %s', (data['room_id'], child_id))
+    if 'id' in request.args:  # Only proceed if a teacher ID is provided
+        if 'room_id' in request.args and not class_exists(request.args['room_id']):
+            return 'ERROR: Invalid room_id'
+        
+        child_id = int(request.args['id'])
+        child = sql.execute_read_query(connection, f'SELECT * FROM child WHERE id = {child_id}')
+
+        if not child:
+            return 'ERROR: Child ID not found'
+
+        if 'firstname' in request.args:
+            sql.execute_query(connection, f"UPDATE child SET firstname = '{request.args['firstname']}' WHERE id = {child_id}")
+        if 'lastname' in request.args:
+            sql.execute_query(connection, f"UPDATE child SET lastname = '{request.args['lastname']}' WHERE id = {child_id}")
+        if 'age' in request.args:
+            sql.execute_query(connection, f"UPDATE child SET age = '{request.args['age']} WHERE id = {child_id}")
+        if 'room_id' in request.args:
+            sql.execute_query(connection, f"UPDATE child SET room_id = {request.args['room_id']} WHERE id = {child_id}")
+    else:
+        return 'ERROR: no child ID provided'
     
     return 'Child successfully updated!'
 
