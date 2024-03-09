@@ -287,6 +287,25 @@ def del_teacher():
 # CHILDREN METHODS
 # same rules a teacher methods
 
+def too_many_children(room_id):
+    classroom = sql.execute_read_query(f'SELECT * from classrooms WHERE id = {room_id}')
+
+    children_in_classroom = sql.execute_read_query(f'SELECT * from children WHERE room_id = {room_id}')
+
+    teachers_in_classroom = sql.execute_read_query(connection, f'SELECT * from teacher WHERE room_id = {room_id}')
+
+    # if too many classroom has reached capacity
+    if len(children_in_classroom) == classroom['capacity']:
+        return '100'
+    
+    # if there are not enough teachers
+    if len(children_in_classroom)/10 >= len(teachers_in_classroom):
+        return '200'
+
+
+    # if there is room for at least 1 more student in the classroom
+    return '000'
+
 # return all children 
 @app.route('/api/children/all', methods=['GET'])
 def get_children():
@@ -296,23 +315,7 @@ def get_children():
 # add new children
 @app.route('/api/children', methods=['POST'])
 def add_children():
-    # Extract data from JSON request body
-    data = request.json
-    
-    # Ensure required fields are present
-    if 'firstname' not in data or 'lastname' not in data or 'age' not in data or 'room_id' not in data:
-        return 'ERROR: Incomplete data provided'
-    
-    # Extracting data from the JSON object
-    firstname = data['firstname']
-    lastname = data['lastname']
-    age = data['age']
-    room_id = data['room_id']
-
-    # Construct SQL query to insert child data into the database
-    query = f"INSERT INTO child (firstname, lastname, age, room_id) VALUES ('{firstname}', '{lastname}', {age}, {room_id})"
-    sql.execute_query(connection, query=query)
-    
+    Children = sql.execute_read_query(connection, query=('INSERT INTO child (%s,%s,%s)', (request.args['firstname'],request.args['lastname'],request.args['age'],request.args['room_id']))) # this sql may be wrong / incomplete
     return 'Child successfully added to classroom!'
 
 # update children
