@@ -114,9 +114,9 @@ def del_fac():
 # of the classroom they are trying to access
 
 def facility_exists(facility):
-    classrooms = sql.execute_read_query(connection,'SELECT * from classroom')
+    facs = sql.execute_read_query(connection,'SELECT * from facility')
     # https://stackoverflow.com/questions/3897499/check-if-value-already-exists-within-list-of-dictionaries-in-python
-    if not any(classroom['id'] == int(facility) for classroom in classrooms):
+    if not any(facility['id'] == int(facility) for fac in facs):
         return False
     return True
 
