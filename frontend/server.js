@@ -24,6 +24,14 @@ const port = 8081;
 
 var auth = false;
 
+app.get('/teacher', (req, res) => {
+  res.render('teacher'); // Assuming you have a teacher.ejs file in your views folder
+});
+
+app.get('/child', (req, res) => {
+  res.render('child'); // Assuming you have a teacher.ejs file in your views folder
+});
+
 //force user to login if not authorized
 app.get('/', (req, res) => {
   if(!auth){
@@ -44,13 +52,11 @@ app.get('/login', (req, res) => {
 app.post('/login', async(req,res)=>{
 
   // get login info from ejs form
-  const userLoginInfo = req.body;
-
-  console.log(userLoginInfo);
+  const { username, password } = req.body;
 
   // attempt login
   try {
-    const response = await axios.post("http://localhost:5000/api/login", userLoginInfo);
+    const response = await axios.post("http://localhost:5000/api/login", {username, password});
     
     console.log(response.data)
 
@@ -59,16 +65,35 @@ app.post('/login', async(req,res)=>{
       auth = true;
       res.redirect('/');
     }
-
+    else {
+      res.redirect('/login?error=invalid_credentials')
+    }
 
   }
   // catch error if login failed
   catch(error){
-    console.log("login failed");
+    console.log("Error during login:", error);
+    res.redirect('/login?error=login_failed');
     
   }
 });
 
+app.post('/teacher/get', async (req, res) => {
+  try {
+      // Make API call
+      const apiResponse = await axios.get('http://localhost:5000/api/teacher/all');
+
+      // Extract data from API response
+      const data = apiResponse.data;
+      console.log(data);
+      // Render EJS template with data
+      res.render('teacher', { data });
+  } catch (error) {
+      // Handle errors
+      console.error('Error fetching data:', error);
+      res.status(500).send('Error fetching data', error);
+  }
+});
 
 //start the express application on port 8081 and print server start message
 app.listen(port, () => console.log('Application started on localhost:8081'));

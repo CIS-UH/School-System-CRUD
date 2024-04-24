@@ -9,22 +9,27 @@
         />
     </head>
     <body>
-        <div class="container text-center">    
-            <div class="container-fluid">
-                <h1>Please select a table to modify</h1>
-                <div class="row">
-                    <div class="col">
-                        <button class="btn btn-primary" data-url="/facility">Facility</button>
-                    </div>
-                </div>
+        <div class="container text-center p-4">
+            <h1>Please select a table to modify</h1>  
+            <br>
+            <div class="d-flex justify-content-around">
+                <form method="GET">
+                    <input type="submit" class="btn btn-primary" value="facility" formaction="/facility"></input>
+
+                    <input type="submit" class="btn btn-primary" value="classroom" formaction="/classroom"></input>
+    
+                    <input type="submit" class="btn btn-primary" value="teacher" formaction="/teacher"></input>
+    
+                    <input type="submit" class="btn btn-primary" value="child" formaction="/child"></input>    
+                </form>
             </div>
         </div>
         
 
         <!-- MDB -->
-        <script
+        <script>
         type="text/javascript"
-        src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.2.0/mdb.umd.min.js"
-        ></script>
+        src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.2.0/mdb.umd.min.js"        
+        </script>
     </body>
 </html>

@@ -1,0 +1,50 @@
+<html data-mdb-theme="dark">
+    <head>
+        <title>Express and EJS integration</title>
+        <style>
+            p {
+                text-align: center;
+                justify-content: center;
+            }
+            h1 {
+                text-align: center;
+                justify-content: center;
+            }
+        </style>
+        <meta charset="utf-8">
+        <!-- MDB -->
+        <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.2.0/mdb.min.css"
+        rel="stylesheet"
+        />
+    </head>
+    <body>
+        <h1>Welcome To the Children Page!</h1>
+        <p>This is where you can manage Children-related information.</p>
+        <div class="container text-center p-4">  
+            <h1>Please choose a function</h1>  
+            <br>
+            <div class="d-flex justify-content-around">
+                <form method="GET">
+                    <input type="submit" class="btn btn-primary" value="GET" formaction="/api/children/get"></input>
+                </form>
+                <form method = "POST">
+                    <input type="submit" class="btn btn-primary" value="POST" formaction="/api/children/post"></input>
+                </form>
+                <form method = "PUT">
+                    <input type="submit" class="btn btn-primary" value="PUT" formaction="/api/children/put"></input>
+                </form>
+                <form method = "DELETE">
+                    <input type="submit" class="btn btn-primary" value="DELETE" formaction="/api/children/delete"></input>
+                </form>
+            </div>
+        </div>
+        
+
+        <!-- MDB -->
+        <script
+        type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.2.0/mdb.umd.min.js"
+        ></script>
+    </body>
+</html>
