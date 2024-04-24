@@ -22,12 +22,33 @@
         <h1>Welcome To the Teacher Page!</h1>
         <p>This is where you can manage teacher-related information.</p>
         <div class="container text-center p-4">  
-            <h2>Please choose a function</h2>
+            <h2>Please perform a function</h2>
             <br>  
-            <div class="d-flex justify-content-around">
+
+            <div class="card p-3">
                 <form method="POST">
-                    <input type="submit" class="btn btn-primary" id = "getButton" value ="GET" formaction = "/teacher/get"></input>
+                    <h3>Return Teachers in a Specific Classroom</h3>
+                    <div class="row">
+                        <div data-mdb-input-init class="form-outline">
+                            <input type="number" id="room_id" name="room_id" class="form-control bg-dark" required/>
+                            <label class="form-label ms-2" for="room_id" >Room ID</label>
+                        </div>
+                    </div>
+                <br>
+                <div class="row">
+                    <div data-mdb-input-init class="form-outline">
+                        <textarea readonly class="form-control" id="getOutput">
+
+                        </textarea>
+                    </div>
+                </div>
+                <br>
+                <div class="row justify-content-center">
+                    <input type="submit" class="btn btn-primary" style="width: 10%" id = "getButton" value ="GET" formaction = "/teacher/get" />
+                </div>
                 </form>
+            </div>    
+                
                 <form method = "POST">
                     <input type="submit" class="btn btn-primary" value="POST" formaction="/teacher/post"></input>
                 </form>
@@ -37,7 +58,6 @@
                 <form method = "DELETE">
                     <input type="submit" class="btn btn-primary" value="DELETE" formaction="/teacher/delete"></input>
                 </form>
-            </div>
         </div>
         
 
