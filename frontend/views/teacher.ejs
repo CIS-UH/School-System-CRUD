@@ -34,17 +34,18 @@
             <br>  
 
             <div class="card p-3">
-                <form method="POST">
+                <form id="get" method="POST">
                     <h3>Return Teachers in a Specific Classroom</h3>
                     <br>
                     <div class="row">
                         <div><input type="submit" class="btn btn-primary" id = "getButton" value ="GET" > <br> <br>
                         </div>
                         <div data-mdb-input-init class="form-outline">
-                            <input type="number" id="room_id" name="room_id" class="form-control bg-dark" required/>
+                            <input type="number" name="room_id_get" class="form-control bg-dark" required/>
                             <label class="form-label ms-2" for="room_id" >Room ID</label>
                         </div>
                     </div>
+                </form>
                 <br>
                 <div class="row">
                     <div data-mdb-input-init class="form-outline">
@@ -56,38 +57,44 @@
                     </div>
                 </div>
             </div>
+
+            <!-- POST -->
             <br>
             <div class="card p-3">
-                <form method="POST">
+                <form id="post" method="POST">
                     <h4>Add A Teacher to a Classroom</h4> <br>
                     <div>
                         <input type="submit" class="btn btn-primary" value="POST" formaction="/teacher/post">
                         <br> <br>
-                        <input type="text" placeholder="Room">
-                        <input type="text" placeholder="First Name">
-                        <input type="text" placeholder="Last Name">
+                        <input type="text" name="room_id_post" placeholder="Room" required>
+                        <input type="text"  name="firstname_post" placeholder="First Name" required>
+                        <input type="text"  name="lastname_post" placeholder="Last Name" required>
                     </div>
                 </form>
             </div>
+
+            <!-- PUT -->
             <br>
             <div class="card p-3">
-                <form method = "PUT">
+                <form id="put" method = "POST">
                     <h4>Upadate A Teacher</h4> <br>
-                    <input type="submit" class="btn btn-primary" value="PUT" formaction="/teacher/put"></input>
+                    <input type="submit" class="btn btn-primary" value="PUT" formaction="/teacher" />
                     <br> <br>
-                    <input type="text" placeholder = "ID">
-                    <input type="text" placeholder = "First Name">
-                    <input type="text" placeholder= "Last Name">
-                    <input type="text" placeholder= "Room">
+                    <input type="text" placeholder = "ID" required />
+                    <input type="text" placeholder = "First Name" required />
+                    <input type="text" placeholder= "Last Name" required />
+                    <input type="text" placeholder= "Room" required />
                 </form>
             </div>
+
+            <!-- DELETE -->
             <br>
-            <div class="card p-3">
-                <form method = "DELETE">
+            <div id="del" class="card p-3">
+                <form method = "POST">
                     <h4>Remove A Teacher From A Classroom</h4> <br>
-                    <input type="submit" class="btn btn-primary" value="DELETE" formaction="/teacher/delete"></input>
+                    <input type="submit" class="btn btn-primary" value="DELETE" formaction="/teacher" />
                     <br> <br>
-                    <input type="text" placeholder = "ID">
+                    <input type="text" placeholder = "ID" required/>
                 </form>
                 
         </div>
