@@ -63,31 +63,31 @@
                     <div>
                         <input type="submit" class="btn btn-primary" value="POST" formaction="/teacher/post">
                         <br> <br>
-                        <input type="text" placeholder="Room">
-                        <input type="text" placeholder="First Name">
-                        <input type="text" placeholder="Last Name">
+                        <input type="text" placeholder="Room" required>
+                        <input type="text" placeholder="First Name" required>
+                        <input type="text" placeholder="Last Name" required>
                     </div>
                 </form>
             </div>
             <br>
             <div class="card p-3">
-                <form method = "PUT">
+                <form method = "POST">
                     <h4>Upadate A Teacher</h4> <br>
-                    <input type="submit" class="btn btn-primary" value="PUT" formaction="/teacher/put"></input>
+                    <input type="submit" class="btn btn-primary" value="PUT" formaction="/teacher/put" />
                     <br> <br>
-                    <input type="text" placeholder = "ID">
-                    <input type="text" placeholder = "First Name">
-                    <input type="text" placeholder= "Last Name">
-                    <input type="text" placeholder= "Room">
+                    <input type="text" placeholder = "ID" required />
+                    <input type="text" placeholder = "First Name" required />
+                    <input type="text" placeholder= "Last Name" required />
+                    <input type="text" placeholder= "Room" required />
                 </form>
             </div>
             <br>
             <div class="card p-3">
-                <form method = "DELETE">
+                <form method = "POST">
                     <h4>Remove A Teacher From A Classroom</h4> <br>
-                    <input type="submit" class="btn btn-primary" value="DELETE" formaction="/teacher/delete"></input>
+                    <input type="submit" class="btn btn-primary" value="DELETE" formaction="/teacher/delete" />
                     <br> <br>
-                    <input type="text" placeholder = "ID">
+                    <input type="text" placeholder = "ID" required/>
                 </form>
                 
         </div>
