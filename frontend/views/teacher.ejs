@@ -1,6 +1,6 @@
 <html data-mdb-theme="dark">
     <head>
-        <title>Express and EJS integration</title>
+        <title>Teacher</title>
         <style>
             p {
                 text-align: center;
@@ -38,13 +38,15 @@
                 <div class="row">
                     <div data-mdb-input-init class="form-outline">
                         <textarea readonly class="form-control" id="getOutput">
-
+                            <% if(getData != null) { %>
+                                <%= getData %>
+                            <% } %>
                         </textarea>
                     </div>
                 </div>
                 <br>
                 <div class="row justify-content-center">
-                    <input type="submit" class="btn btn-primary" style="width: 10%" id = "getButton" value ="GET" formaction = "/teacher/get" />
+                    <input type="submit" class="btn btn-primary" style="width: 10%" id = "getButton" value ="GET" formaction = "/teacher" />
                 </div>
                 </form>
             </div>    
