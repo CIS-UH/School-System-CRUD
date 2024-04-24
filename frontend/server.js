@@ -25,11 +25,11 @@ const port = 8081;
 var auth = false;
 
 app.get('/teacher', (req, res) => {
-  res.render('teacher'); // Assuming you have a teacher.ejs file in your views folder
+  res.render('teacher'); 
 });
 
 app.get('/child', (req, res) => {
-  res.render('child'); // Assuming you have a teacher.ejs file in your views folder
+  res.render('child'); 
 });
 
 //force user to login if not authorized
@@ -77,6 +77,8 @@ app.post('/login', async(req,res)=>{
     
   }
 });
+
+
 
 app.post('/teacher/get', async (req, res) => {
   try {
