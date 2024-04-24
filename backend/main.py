@@ -225,7 +225,7 @@ def get_teachers():
     return jsonify(sql.execute_read_query(connection,'SELECT * from teacher'))
 
 #return teachers from one room
-@app.route('/api/teacher', methods=['GET'])
+@app.route('/api/teacher/get', methods=['GET'])
 def get_teachers_from_room():
     if 'room' in request.args:
         room = request.args['room']

@@ -38,7 +38,7 @@
                     <h3>Return Teachers in a Specific Classroom</h3>
                     <br>
                     <div class="row">
-                        <div><input type="submit" class="btn btn-primary" id = "getButton" value ="GET" formaction = "/teacher" /> <br> <br>
+                        <div><input type="submit" class="btn btn-primary" id = "getButton" value ="GET" > <br> <br>
                         </div>
                         <div data-mdb-input-init class="form-outline">
                             <input type="number" id="room_id" name="room_id" class="form-control bg-dark" required/>
@@ -97,5 +97,32 @@
         type="text/javascript"
         src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.2.0/mdb.umd.min.js"
         </script>
+        <script>
+            document.getElementById('getButton').addEventListener('click', async () => {
+                const room = document.getElementById('room_id').value;
+                try {
+                    const response = await fetch(`http://localhost:5000/api/teacher/get?room=${room}`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        displayTeacherData(data);
+                    } else {
+                        throw new Error('Failed to fetch data');
+                    }
+                } catch (error) {
+                    console.error('Error fetching data:', error);
+                }
+            });
+    
+            function displayTeacherData(data) {
+                const teacherDataContainer = document.getElementById('teacherData');
+                teacherDataContainer.innerHTML = ''; 
+                data.forEach(teacher => {
+                    const div = document.createElement('div');
+                    div.textContent = `${teacher.name} - ${teacher.room}`;
+                    teacherDataContainer.appendChild(div);
+                });
+            }
+        </script>
+    
     </body>
 </html>

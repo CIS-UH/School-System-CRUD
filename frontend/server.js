@@ -47,22 +47,21 @@ app.get('/teacher', (req, res) => {
 app.post('/teacher', async (req, res) => {
   var room_id = parseInt(req.body.room_id);
   console.log(room_id);
+  
   try {
       // Make API call
-      const apiResponse = await axios.get('http://localhost:5000/api/teacher', {room: room_id});
+      const apiResponse = await axios.get('http://localhost:5000/api/teacher/get', {params: {room: room_id}});
 
       // Extract data from API response
       const data = apiResponse.data;
-      console.log(data);
 
       // Render EJS template with data
       res.render('teacher', { getData: JSON.stringify(data) });
   } catch (error) {
       // Handle errors
       console.error('Error fetching data:', error);
-      res.status(500).send('Error fetching data', error);
+      res.status(500).send('Error fetching data:', error.message);
   }
-  res.render('teacher'); 
 });
 
 app.get('/child', (req, res) => {
