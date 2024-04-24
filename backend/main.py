@@ -225,14 +225,14 @@ def get_teachers():
     return jsonify(sql.execute_read_query(connection,'SELECT * from teacher'))
 
 #return teachers from one room
-@app.route('/api/teacher/get', methods=['GET'])
+@app.route('/api/teacher', methods=['GET'])
 def get_teachers_from_room():
     if 'room' in request.args:
         room = request.args['room']
         return jsonify(sql.execute_read_query(connection, f"SELECT * FROM teacher WHERE room = '{room}'"))
     
 # add new teacher
-@app.route('/api/teacher/post', methods=['POST'])
+@app.route('/api/teacher', methods=['POST'])
 def add_teacher():
     if 'room' not in request.args:
         return 'ERROR: Please provide a room id'
@@ -248,7 +248,7 @@ def add_teacher():
     
 
 #update teacher
-@app.route('/api/teacher/put', methods=['PUT'])
+@app.route('/api/teacher', methods=['PUT'])
 def update_teacher():
     if 'id' in request.args:  # Only proceed if a teacher ID is provided
         if 'room' in request.args and not class_exists(request.args['room']):
@@ -272,7 +272,7 @@ def update_teacher():
     return 'Teacher successfully updated!'
 
 # delete teacher
-@app.route('/api/teacher/delete', methods=['DELETE'])
+@app.route('/api/teacher', methods=['DELETE'])
 def del_teacher():
     if 'id' in request.args:
         teacher_id = request.args['id']
