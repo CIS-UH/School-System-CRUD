@@ -29,7 +29,6 @@ app.get('/facility', (req, res) => {
 });
 
 app.post('/facility', async(req,res) =>{
-  var getData = {}
   try {
     const response = await axios.get('http://localhost:5000/api/facility');
     console.log(response.data);
@@ -44,25 +43,48 @@ app.get('/teacher', (req, res) => {
   res.render('teacher', {getData: null}); 
 });
 
+// GET method
 app.post('/teacher', async (req, res) => {
-  var room_id = parseInt(req.body.room_id);
+  var room_id = parseInt(req.body.room_id_get);
   console.log(room_id);
   try {
       // Make API call
-      const apiResponse = await axios.get('http://localhost:5000/api/teacher', {room: room_id});
+      const apiResponse = await axios.get(`http://localhost:5000/api/teacher?room=${room_id}`);
 
       // Extract data from API response
-      const data = apiResponse.data;
+      var data = apiResponse.data;
       console.log(data);
 
-      // Render EJS template with data
+      // RENDER THE PAGE WITH THE DATA
       res.render('teacher', { getData: JSON.stringify(data) });
   } catch (error) {
       // Handle errors
       console.error('Error fetching data:', error);
       res.status(500).send('Error fetching data', error);
+  } 
+});
+
+//POST Method
+app.post('/teacher/post', async (req, res) => {
+  var room_id = parseInt(req.body.room_id_post);
+  var firstname = req.body.firstname_post;
+  var lastname = req.body.lastname_post;
+  console.log(room_id);
+  try {
+      // Make API call
+      const apiResponse = await axios.post(`http://localhost:5000/api/teacher?room=${room_id}&firstname=${firstname}&lastname=${lastname}`);
+
+      // Extract data from API response
+      var data = apiResponse.data;
+      console.log(data);
+
+      // Render EJS template with null data
+      res.render('teacher', { getData: null });
+  } catch (error) {
+      // Handle errors
+      console.error('Error fetching data:', error);
+      res.status(500).send('Error fetching data', error);
   }
-  res.render('teacher'); 
 });
 
 app.get('/child', (req, res) => {
