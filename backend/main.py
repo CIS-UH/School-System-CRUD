@@ -23,12 +23,7 @@ masterPassword = "TeacherPassword"
 #waiting for further clarification on log in API 
 # Simple authentication function
 def authenticate(username, password):
-    if request.authorization:
-        encoded = request.authorization.password.encode #unicode encoding
-        hashedResult = hashlib.sha256(encoded) #hashing
-        if request.authorization.username == masterUsername and hashedResult.hexdigest() == masterPassword:
-            return "<h1> We are allowed to be here </h1>"
-    return make_response("COULD NOT VERIFY!", 501, {"WWW-Authenticate" : "Basic realm = Login Required"})
+    return username == masterUsername and password == masterPassword
 
 # Login API
 @app.route('/api/login', methods=['POST'])
@@ -230,14 +225,14 @@ def get_teachers():
     return jsonify(sql.execute_read_query(connection,'SELECT * from teacher'))
 
 #return teachers from one room
-@app.route('/api/teacher', methods=['GET'])
+@app.route('/api/teacher/get', methods=['GET'])
 def get_teachers_from_room():
     if 'room' in request.args:
         room = request.args['room']
         return jsonify(sql.execute_read_query(connection, f"SELECT * FROM teacher WHERE room = '{room}'"))
     
 # add new teacher
-@app.route('/api/teacher', methods=['POST'])
+@app.route('/api/teacher/post', methods=['POST'])
 def add_teacher():
     if 'room' not in request.args:
         return 'ERROR: Please provide a room id'
@@ -253,7 +248,7 @@ def add_teacher():
     
 
 #update teacher
-@app.route('/api/teacher', methods=['PUT'])
+@app.route('/api/teacher/put', methods=['PUT'])
 def update_teacher():
     if 'id' in request.args:  # Only proceed if a teacher ID is provided
         if 'room' in request.args and not class_exists(request.args['room']):
@@ -277,7 +272,7 @@ def update_teacher():
     return 'Teacher successfully updated!'
 
 # delete teacher
-@app.route('/api/teacher', methods=['DELETE'])
+@app.route('/api/teacher/delete', methods=['DELETE'])
 def del_teacher():
     if 'id' in request.args:
         teacher_id = request.args['id']
@@ -316,7 +311,7 @@ def get_children():
     return jsonify(sql.execute_read_query(connection,'SELECT * from child'))
 
 # return all children in a provided room
-@app.route('/api/children', methods=['GET'])
+@app.route('/api/children/get', methods=['GET'])
 def get_children_from_room():
     if 'room' in request.args:
         room = request.args['room']
@@ -326,7 +321,7 @@ def get_children_from_room():
     
 
 # add new children
-@app.route('/api/children', methods=['POST'])
+@app.route('/api/children/post', methods=['POST'])
 def add_children():
     if 'firstname' not in request.args:
         return 'ERROR: no firstname provided'
@@ -352,7 +347,7 @@ def add_children():
         return 'Child successfully added to classroom!'
 
 # update children
-@app.route('/api/children', methods=['PUT'])
+@app.route('/api/children/put', methods=['PUT'])
 def update_child():
     if 'id' in request.args:  # Only proceed if a teacher ID is provided
         if 'room_id' in request.args and not class_exists(request.args['room_id']):
@@ -378,7 +373,7 @@ def update_child():
     return 'Child successfully updated!'
 
 # delete child from db
-@app.route('/api/children', methods=['DELETE'])
+@app.route('/api/children/delete', methods=['DELETE'])
 def del_child():
     if 'id' in request.args:
         child_id = request.args['id']
