@@ -39,22 +39,19 @@ app.post('/facility', async(req,res) =>{
   }
 });
 
+//Teacher APIs
 app.get('/teacher', (req, res) => {
   res.render('teacher', {getData: null}); 
 });
 
 // GET method
-<<<<<<< HEAD
-app.post('/teacher', async (req, res) => {a
-=======
 app.post('/teacher/get', async (req, res) => {
->>>>>>> a42b9894a42834471ceaf4cc139bb8d9f9925f37
   var room_id = parseInt(req.body.room_id_get);
   console.log(room_id);
   
   try {
       // Make API call
-      const apiResponse = await axios.get(`http://localhost:5000/api/teacher`);
+      const apiResponse = await axios.get(`http://localhost:5000/api/teacher?room=${room_id}`);
 
       // Extract data from API response
       var data = apiResponse.data;
@@ -74,7 +71,7 @@ app.post('/teacher/post', async (req, res) => {
   var room_id = parseInt(req.body.room_id_post);
   var firstname = req.body.firstname_post;
   var lastname = req.body.lastname_post;
-  console.log(room_id);
+  console.log(room_id, firstname, lastname);
   try {
       // Make API call
       const apiResponse = await axios.post(`http://localhost:5000/api/teacher?room=${room_id}&firstname=${firstname}&lastname=${lastname}`);
@@ -92,8 +89,147 @@ app.post('/teacher/post', async (req, res) => {
   }
 });
 
+//PUT Method
+app.post('/teacher/put', async (req, res) => {
+  var id = parseInt(req.body.id_put);
+  var firstname = req.body.firstname_put;
+  var lastname = req.body.lastname_put;
+  var room_id = parseInt(req.body.room_id_put)
+  console.log(id, firstname, lastname, room_id);
+  try {
+      // Make API call
+      const apiResponse = await axios.put(`http://localhost:5000/api/teacher?id=${id}&firstname=${firstname}&lastname=${lastname}&room=${room_id}`);
+
+      // Extract data from API response
+      var data = apiResponse.data;
+      console.log(data);
+
+      // Render EJS template with null data
+      res.render('teacher', { getData: null });
+  } catch (error) {
+      // Handle errors
+      console.error('Error fetching data:', error);
+      res.status(500).send('Error fetching data', error);
+  }
+});
+
+//DELETE Method
+app.post('/teacher/delete', async (req, res) => {
+  var id = parseInt(req.body.ID_delete);
+  console.log(id);
+  try {
+      // Make API call
+      const apiResponse = await axios.delete(`http://localhost:5000/api/teacher?id=${id}`);
+
+      // Extract data from API response
+      var data = apiResponse.data;
+      console.log(data);
+
+      // Render EJS template with null data
+      res.render('teacher', { getData: null });
+  } catch (error) {
+      // Handle errors
+      console.error('Error fetching data:', error);
+      res.status(500).send('Error fetching data', error);
+  }
+});
+
+
+//Child APIs
 app.get('/child', (req, res) => {
   res.render('child'); 
+});
+
+// GET method
+app.post('/child/get', async (req, res) => {
+  var room_id = parseInt(req.body.room_id_get);
+  console.log(room_id);
+  
+  try {
+      // Make API call
+      const apiResponse = await axios.get(`http://localhost:5000/api/child?room=${room_id}`);
+
+      // Extract data from API response
+      var data = apiResponse.data;
+      console.log(data);
+
+      // RENDER THE PAGE WITH THE DATA
+      res.render('child', { getData: JSON.stringify(data) });
+  } catch (error) {
+      // Handle errors
+      console.error('Error fetching data:', error);
+      res.status(500).send('Error fetching data', error);
+  } 
+});
+
+//POST Method
+app.post('/child/post', async (req, res) => {
+  var room_id = parseInt(req.body.room_id_post);
+  var firstname = req.body.firstname_post;
+  var lastname = req.body.lastname_post;
+  var age = req.body.age_post
+  console.log(room_id, firstname, lastname);
+  try {
+      // Make API call
+      const apiResponse = await axios.post(`http://localhost:5000/api/child?room=${room_id}&firstname=${firstname}&lastname=${lastname}&age=${age}`);
+
+      // Extract data from API response
+      var data = apiResponse.data;
+      console.log(data);
+
+      // Render EJS template with null data
+      res.render('child', { getData: null });
+  } catch (error) {
+      // Handle errors
+      console.error('Error fetching data:', error);
+      res.status(500).send('Error fetching data', error);
+  }
+});
+
+//PUT Method
+app.post('/child/put', async (req, res) => {
+  var id = parseInt(req.body.id_put);
+  var firstname = req.body.firstname_put;
+  var lastname = req.body.lastname_put;
+  var age = req.body.age_post
+  var room_id = parseInt(req.body.room_id_put)
+  console.log(id, firstname, lastname, room_id);
+  try {
+      // Make API call
+      const apiResponse = await axios.put(`http://localhost:5000/api/child?id=${id}&firstname=${firstname}&lastname=${lastname}&age=${age}}&room=${room_id}`);
+
+      // Extract data from API response
+      var data = apiResponse.data;
+      console.log(data);
+
+      // Render EJS template with null data
+      res.render('child', { getData: null });
+  } catch (error) {
+      // Handle errors
+      console.error('Error fetching data:', error);
+      res.status(500).send('Error fetching data', error);
+  }
+});
+
+//DELETE Method
+app.post('/child/delete', async (req, res) => {
+  var id = parseInt(req.body.ID_delete);
+  console.log(id);
+  try {
+      // Make API call
+      const apiResponse = await axios.delete(`http://localhost:5000/api/child?id=${id}`);
+
+      // Extract data from API response
+      var data = apiResponse.data;
+      console.log(data);
+
+      // Render EJS template with null data
+      res.render('child', { getData: null });
+  } catch (error) {
+      // Handle errors
+      console.error('Error fetching data:', error);
+      res.status(500).send('Error fetching data', error);
+  }
 });
 
 //force user to login if not authorized

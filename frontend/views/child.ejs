@@ -1,6 +1,6 @@
 <html data-mdb-theme="dark">
     <head>
-        <title>Express and EJS integration</title>
+        <title>Child</title>
         <style>
             p {
                 text-align: center;
@@ -10,6 +10,14 @@
                 text-align: center;
                 justify-content: center;
             }
+
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                background-color: #f0f0f0;
+                }
+                        
         </style>
         <meta charset="utf-8">
         <!-- MDB -->
@@ -19,32 +27,84 @@
         />
     </head>
     <body>
-        <h1>Welcome To the Children Page!</h1>
-        <p>This is where you can manage Children-related information.</p>
+        <h1>Welcome To the Child Page!</h1>
+        <p>This is where you can manage child-related information.</p>
         <div class="container text-center p-4">  
-            <h1>Please choose a function</h1>  
+            <h2>Please perform a function</h2>
+            <br>  
+
+            <div class="card p-3">
+                <form id="get" method="POST">
+                    <h3>Return Child in a Specific Classroom</h3>
+                    <br>
+                    <div class="row">
+                        <div><input type="submit" class="btn btn-primary" id = "getButton" value ="GET" formaction="/child/get"> <br> <br>
+                        </div>
+                        <div data-mdb-input-init class="form-outline">
+                            <input type="number" name="room_id_get" class="form-control bg-dark" required/>
+                            <label class="form-label ms-2" for="room_id" >Room ID</label>
+                        </div>
+                    </div>
+                </form>
+                <br>
+                <div class="row">
+                    <div data-mdb-input-init class="form-outline">
+                        <textarea readonly class="form-control" id="getOutput">
+                            <% if(getData != null) { %>
+                                <%= getData %>
+                            <% } %>
+                        </textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- POST -->
             <br>
-            <div class="d-flex justify-content-around">
-                <form method="GET">
-                    <input type="submit" class="btn btn-primary" value="GET" formaction="/api/children/get"></input>
-                </form>
-                <form method = "POST">
-                    <input type="submit" class="btn btn-primary" value="POST" formaction="/api/children/post"></input>
-                </form>
-                <form method = "PUT">
-                    <input type="submit" class="btn btn-primary" value="PUT" formaction="/api/children/put"></input>
-                </form>
-                <form method = "DELETE">
-                    <input type="submit" class="btn btn-primary" value="DELETE" formaction="/api/children/delete"></input>
+            <div class="card p-3">
+                <form id="post" method="POST">
+                    <h4>Add A Child to a Classroom</h4> <br>
+                    <div>
+                        <input type="submit" class="btn btn-primary" value="POST" formaction="/child/post" />
+                        <br> <br>
+                        <input type="text" name="room_id_post" placeholder="Room" required>
+                        <input type="text"  name="firstname_post" placeholder="First Name" required>
+                        <input type="text"  name="lastname_post" placeholder="Last Name" required>
+                        <input type="text"  name="age_post" placeholder="Age" required>
+                    </div>
                 </form>
             </div>
+
+            <!-- PUT -->
+            <br>
+            <div class="card p-3">
+                <form id="put" method = "POST">
+                    <h4>Update A Child</h4> <br>
+                    <input type="submit" class="btn btn-primary" value="PUT" formaction="/child/put" />
+                    <br> <br>
+                    <input type="text"  name="id_post" placeholder="ID" required>
+                    <input type="text" name = "firstname_put" placeholder = "First Name" required />
+                    <input type="text" name= "lastname_put" placeholder = "Last Name" required />
+                    <input type="text"  name="age_post" placeholder="Age" required>
+                    <input type="text" name= "room_id_put" placeholder = "Room" required />
+                </form>
+            </div>
+
+            <!-- DELETE -->
+            <br>
+            <div id="del" class="card p-3">
+                <form method = "POST">
+                    <h4>Remove A Child From A Classroom</h4> <br>
+                    <input type="submit" class="btn btn-primary" value="DELETE" formaction="/child/delete" />
+                    <br> <br>
+                    <input type="text" name = "ID_delete" placeholder = "Child" required/>
+                </form>
+                
         </div>
-        
 
         <!-- MDB -->
-        <script
+        <script>
         type="text/javascript"
         src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.2.0/mdb.umd.min.js"
-        ></script>
+        </script>  
     </body>
 </html>

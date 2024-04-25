@@ -311,7 +311,7 @@ def get_children():
     return jsonify(sql.execute_read_query(connection,'SELECT * from child'))
 
 # return all children in a provided room
-@app.route('/api/children/get', methods=['GET'])
+@app.route('/api/child', methods=['GET'])
 def get_children_from_room():
     if 'room' in request.args:
         room = request.args['room']
@@ -321,7 +321,7 @@ def get_children_from_room():
     
 
 # add new children
-@app.route('/api/children/post', methods=['POST'])
+@app.route('/api/child', methods=['POST'])
 def add_children():
     if 'firstname' not in request.args:
         return 'ERROR: no firstname provided'
@@ -347,7 +347,7 @@ def add_children():
         return 'Child successfully added to classroom!'
 
 # update children
-@app.route('/api/children/put', methods=['PUT'])
+@app.route('/api/child', methods=['PUT'])
 def update_child():
     if 'id' in request.args:  # Only proceed if a teacher ID is provided
         if 'room_id' in request.args and not class_exists(request.args['room_id']):
@@ -373,7 +373,7 @@ def update_child():
     return 'Child successfully updated!'
 
 # delete child from db
-@app.route('/api/children/delete', methods=['DELETE'])
+@app.route('/api/child', methods=['DELETE'])
 def del_child():
     if 'id' in request.args:
         child_id = request.args['id']
