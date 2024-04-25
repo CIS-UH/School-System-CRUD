@@ -137,9 +137,8 @@ app.post('/teacher/delete', async (req, res) => {
 
 //Child APIs
 app.get('/child', (req, res) => {
-  res.render('child'); 
+  res.render('child', {getData: null}); 
 });
-
 // GET method
 app.post('/child/get', async (req, res) => {
   var room_id = parseInt(req.body.room_id_get);
@@ -164,14 +163,14 @@ app.post('/child/get', async (req, res) => {
 
 //POST Method
 app.post('/child/post', async (req, res) => {
-  var room_id = parseInt(req.body.room_id_post);
   var firstname = req.body.firstname_post;
   var lastname = req.body.lastname_post;
-  var age = req.body.age_post
-  console.log(room_id, firstname, lastname);
+  var room_id = parseInt(req.body.room_id_post);
+  var age = parseInt(req.body.age_post);
+  console.log(firstname, lastname, room_id, age);
   try {
       // Make API call
-      const apiResponse = await axios.post(`http://localhost:5000/api/child?room=${room_id}&firstname=${firstname}&lastname=${lastname}&age=${age}`);
+      const apiResponse = await axios.post(`http://localhost:5000/api/child?firstname=${firstname}&lastname=${lastname}&room=${room_id}&age=${age}`);
 
       // Extract data from API response
       var data = apiResponse.data;
