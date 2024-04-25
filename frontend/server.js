@@ -46,7 +46,7 @@ app.get('/teacher', (req, res) => {
 
 // GET method
 app.post('/teacher/get', async (req, res) => {
-  var room_id = parseInt(req.body.room_id_get);
+  var room_id = req.body.room_id_get;
   console.log(room_id);
   
   try {
@@ -68,7 +68,7 @@ app.post('/teacher/get', async (req, res) => {
 
 //POST Method
 app.post('/teacher/post', async (req, res) => {
-  var room_id = parseInt(req.body.room_id_post);
+  var room_id = req.body.room_id_post;
   var firstname = req.body.firstname_post;
   var lastname = req.body.lastname_post;
   console.log(room_id, firstname, lastname);

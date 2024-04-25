@@ -56,10 +56,14 @@ def insert_second_id_all(table):
         second_id = generate_second_id(str(entry.get('id')))
         sql.execute_query(connection, f"UPDATE {table} SET second_id='{second_id}' WHERE id = {entry.get('id')};")
 
+        connection.commit()
+
 def insert_second_id_post(table, entryID):
 
     second_id = generate_second_id(str(entryID))
     sql.execute_query(connection, f"UPDATE {table} SET second_id='{second_id}' WHERE id = {entryID};")
+
+    connection.commit()
 
 #waiting for further clarification on log in API 
 # Simple authentication function
@@ -250,14 +254,14 @@ def del_classroom():
 def class_exists(room):
     classrooms = sql.execute_read_query(connection,'SELECT * from classroom')
     # https://stackoverflow.com/questions/3897499/check-if-value-already-exists-within-list-of-dictionaries-in-python
-    if not any(classroom['id'] == int(room) for classroom in classrooms):
+    if not any(classroom['second_id'] == room for classroom in classrooms):
         return False
     return True
 
 def teacher_exists(teacher_id):
     teachers = sql.execute_read_query(connection,'SELECT * from teacher')
     # https://stackoverflow.com/questions/3897499/check-if-value-already-exists-within-list-of-dictionaries-in-python
-    if not any(teacher['id'] == int(teacher_id) for teacher in teachers):
+    if not any(teacher['second_id'] == teacher_id for teacher in teachers):
         return False
     return True
 
@@ -271,7 +275,7 @@ def get_teachers():
 def get_teachers_from_room():
     if 'room' in request.args:
         room = request.args['room']
-        return jsonify(sql.execute_read_query(connection, f"SELECT * FROM teacher WHERE room = '{room}'"))
+        return jsonify(sql.execute_read_query(connection, f"SELECT * FROM teacher WHERE second_id = '{room}'"))
     
 # add new teacher
 @app.route('/api/teacher', methods=['POST'])
