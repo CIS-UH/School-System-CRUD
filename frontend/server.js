@@ -44,7 +44,11 @@ app.get('/teacher', (req, res) => {
 });
 
 // GET method
+<<<<<<< HEAD
 app.post('/teacher', async (req, res) => {a
+=======
+app.post('/teacher/get', async (req, res) => {
+>>>>>>> a42b9894a42834471ceaf4cc139bb8d9f9925f37
   var room_id = parseInt(req.body.room_id_get);
   console.log(room_id);
   

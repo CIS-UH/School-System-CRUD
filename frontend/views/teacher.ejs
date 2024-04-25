@@ -38,7 +38,7 @@
                     <h3>Return Teachers in a Specific Classroom</h3>
                     <br>
                     <div class="row">
-                        <div><input type="submit" class="btn btn-primary" id = "getButton" value ="GET" > <br> <br>
+                        <div><input type="submit" class="btn btn-primary" id = "getButton" value ="GET" formaction="/teacher/get"> <br> <br>
                         </div>
                         <div data-mdb-input-init class="form-outline">
                             <input type="number" name="room_id_get" class="form-control bg-dark" required/>
@@ -64,7 +64,7 @@
                 <form id="post" method="GET">
                     <h4>Add A Teacher to a Classroom</h4> <br>
                     <div>
-                        <input type="submit" class="btn btn-primary" value="POST" formaction="/teacher/post">
+                        <input type="submit" class="btn btn-primary" value="POST" formaction="/teacher/post" />
                         <br> <br>
                         <input type="text" name="room_id_post" placeholder="Room" required>
                         <input type="text"  name="firstname_post" placeholder="First Name" required>
