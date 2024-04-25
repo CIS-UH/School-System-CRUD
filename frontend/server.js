@@ -94,11 +94,25 @@ app.post('/teacher/put', async (req, res) => {
   var id = parseInt(req.body.id_put);
   var firstname = req.body.firstname_put;
   var lastname = req.body.lastname_put;
-  var room_id = parseInt(req.body.room_id_put)
+  var room_id = "";
+  if(req.body.room_id_put != ""){
+    var room_id = parseInt(req.body.room_id_put);
+  }
+  
   console.log(id, firstname, lastname, room_id);
   try {
       // Make API call
-      const apiResponse = await axios.put(`http://localhost:5000/api/teacher?id=${id}&firstname=${firstname}&lastname=${lastname}&room=${room_id}`);
+      var apiCall = `http://localhost:5000/api/teacher?id=${id}`
+      if (firstname != ""){
+        apiCall = apiCall + `&firstname=${firstname}`;
+      }
+      if (lastname != ""){
+        apiCall = apiCall + `&lastname=${lastname}`;
+      }
+      if (room_id != ""){
+        apiCall = apiCall + `&room=${room_id}`;
+      }
+      const apiResponse = await axios.put(apiCall);
 
       // Extract data from API response
       var data = apiResponse.data;
