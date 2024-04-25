@@ -44,13 +44,13 @@ app.get('/teacher', (req, res) => {
 });
 
 // GET method
-app.post('/teacher', async (req, res) => {
+app.post('/teacher', async (req, res) => {a
   var room_id = parseInt(req.body.room_id_get);
   console.log(room_id);
   
   try {
       // Make API call
-      const apiResponse = await axios.get(`http://localhost:5000/api/teacher?room=${room_id}`);
+      const apiResponse = await axios.get(`http://localhost:5000/api/teacher`);
 
       // Extract data from API response
       var data = apiResponse.data;
