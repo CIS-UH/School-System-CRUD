@@ -20,6 +20,46 @@ app.config['DEBUG'] = True # allow to show errors in browser
 masterUsername = 'username'
 masterPassword = "TeacherPassword"
 
+#create second_id
+def generate_second_id(idSTR):
+    result = ""
+
+    for char in idSTR[::1]:
+        if char == '0':
+            result += 'Z'
+        if char == "1":
+            result += 'A'
+        if char =='2':
+            result += 'B'
+        if char =='3':
+            result += 'C'
+        if char =='4':
+            result += 'D'
+        if char =='5':
+            result += 'E'
+        if char =='6':
+            result += 'F'
+        if char =='7':
+            result += 'G'
+        if char =='8':
+            result += 'H'
+        if char =='9':
+            result += 'I'
+
+    return result
+
+def insert_second_id_all(table):
+
+    ents = sql.execute_read_query(connection,f'SELECT * from {table}')
+    for entry in ents:
+        second_id = generate_second_id(str(entry.get('id')))
+        sql.execute_query(connection, f"UPDATE {table} SET second_id='{second_id}' WHERE id = {entry.get('id')};")
+
+def insert_second_id_post(table, entryID):
+
+    second_id = generate_second_id(str(entryID))
+    sql.execute_query(connection, f"UPDATE {table} SET second_id='{second_id}' WHERE id = {entryID};")
+
 #waiting for further clarification on log in API 
 # Simple authentication function
 def authenticate(username, password):
@@ -286,7 +326,10 @@ def del_teacher():
 # same rules a teacher methods
 
 def too_many_children(room):
-    classroom = sql.execute_read_query(f"SELECT * from classrooms WHERE id = {room}")
+    classroom = sql.execute_read_query(connection, f"SELECT * from classrooms WHERE id = {room}")
+
+    if not classroom:
+        return '400'
 
     children_in_classroom = sql.execute_read_query(connection, f"SELECT * from child WHERE room = {room}")
 
@@ -349,28 +392,52 @@ def add_children():
 # update children
 @app.route('/api/child', methods=['PUT'])
 def update_child():
-    if 'id' in request.args:  # Only proceed if a teacher ID is provided
-        if 'room_id' in request.args and not class_exists(request.args['room_id']):
-            return 'ERROR: Invalid room_id'
-        
+    # Check if the 'id' parameter exists in the request arguments
+    if 'id' not in request.args:
+        return jsonify({'error': 'No child ID provided'}), 400
+
+    # Try to convert the 'id' parameter to an integer
+    try:
         child_id = int(request.args['id'])
-        child = sql.execute_read_query(connection, f'SELECT * FROM child WHERE id = {child_id}')
+    except ValueError:
+        return jsonify({'error': 'Invalid child ID provided'}), 400
 
-        if not child:
-            return 'ERROR: Child ID not found'
+    # Check if the 'room_id' parameter exists and is a valid class
+    if 'room_id' in request.args:
+        room_id = int(request.args['room_id'])
+        if not class_exists(room_id):
+            return jsonify({'error': 'Invalid room_id'}), 400
 
-        if 'firstname' in request.args:
-            sql.execute_query(connection, f"UPDATE child SET firstname = '{request.args['firstname']}' WHERE id = {child_id}")
-        if 'lastname' in request.args:
-            sql.execute_query(connection, f"UPDATE child SET lastname = '{request.args['lastname']}' WHERE id = {child_id}")
-        if 'age' in request.args:
-            sql.execute_query(connection, f"UPDATE child SET age = '{request.args['age']} WHERE id = {child_id}")
-        if 'room_id' in request.args:
-            sql.execute_query(connection, f"UPDATE child SET room_id = {request.args['room_id']} WHERE id = {child_id}")
+    # Fetch the child from the database
+    child = sql.execute_read_query(connection, 'SELECT * FROM child WHERE id = ?', (child_id,))
+    if not child:
+        return jsonify({'error': 'Child ID not found'}), 404
+
+    # Update the child's information
+    update_query = "UPDATE child SET "
+    params = []
+
+    if 'firstname' in request.args:
+        update_query += "firstname = ?,"
+        params.append(request.args['firstname'])
+    if 'lastname' in request.args:
+        update_query += "lastname = ?,"
+        params.append(request.args['lastname'])
+    if 'age' in request.args:
+        update_query += "age = ?,"
+        params.append(int(request.args['age']))
+    if 'room_id' in request.args:
+        update_query += "room_id = ?,"
+        params.append(room_id)
+
+    if params:
+        update_query = update_query.rstrip(',') + " WHERE id = ?"
+        params.append(child_id)
+        sql.execute_query(connection, update_query, params)
+        return jsonify({'message': 'Child successfully updated!'}), 200
     else:
-        return 'ERROR: no child ID provided'
-    
-    return 'Child successfully updated!'
+        return jsonify({'error': 'No fields to update'}), 400
+
 
 # delete child from db
 @app.route('/api/child', methods=['DELETE'])
