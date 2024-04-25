@@ -48,6 +48,7 @@ def generate_second_id(idSTR):
 
     return result
 
+
 def insert_second_id_all(table):
 
     ents = sql.execute_read_query(connection,f'SELECT * from {table}')
@@ -93,14 +94,11 @@ def add_fac():
     facs = None
     facs = sql.execute_read_query(connection,'SELECT * from facility')
 
-    # new facility id
-    request_data =  request.get_json()
-
-    if 'id' not in request_data.keys():
+    if 'id' not in request.args:
         return 'ERROR: no id provided, please try again'
 
 
-    new_fac_id = request_data['id']
+    new_fac_id = request.args['id']
 
     for fac in facs:
         if fac['id'] == new_fac_id:
@@ -108,26 +106,26 @@ def add_fac():
     
     # add new facility to db
     cursor = connection.cursor(dictionary=True)
-    cursor.execute('INSERT INTO facility VALUES (%s,%s)', (request_data['id'],request_data['name']))
+    cursor.execute('INSERT INTO facility VALUES (%s,%s,%s)', (request.args['id'],request.args['name']))
+
+    insert_second_id_post('faciliy',request.args['id'])
     connection.commit()
-    
+
     return 'Facility successfully added'
 
 # update facility
 @app.route('/api/facility', methods=['PUT'])
 def update_fac():
-    
-    request_data =  request.get_json()
 
-    if 'id' not in request_data.keys():
+    if 'id' not in request.args:
         return 'ERROR: No id provided. Please try again'
 
     # facility to be updated
-    update_fac_id = request_data['id']
+    update_fac_id = request.args['id']
 
     # update facility in db
     cursor = connection.cursor(dictionary=True)
-    cursor.execute('UPDATE facility SET name = %s WHERE id = %s', (request_data['name'],request_data['id']))
+    cursor.execute('UPDATE facility SET name = %s WHERE id = %s', (request.args['name'],request.args['id']))
     connection.commit()
 
     return 'Facility successfully updated'
@@ -141,6 +139,7 @@ def del_fac():
     else:
         return 'ERROR: no Facility ID provided'
     
+    connection.commit()
     return 'Facility successfully deleted!'
 
 # CLASSROOM METHODS
@@ -202,6 +201,8 @@ def add_classroom():
       
     classrooms = sql.execute_query(connection, query=f"INSERT INTO classroom (capacity,name,facility) VALUES ({request.args['capacity']},'{request.args['name']}',{request.args['facility']})")
 
+    insert_second_id_post('classroom',request.args['id'])
+
     return 'Classroom successfully added!'
 
 # update classroom
@@ -239,6 +240,7 @@ def del_classroom():
     else:
         return 'ERROR: no classroom ID provided'
     
+    connection.commit()
     return 'Classroom successfully deleted!'
 
 # TEACHER METHODS
@@ -284,6 +286,10 @@ def add_teacher():
         return 'ERROR: Please provide a lastname'
     teachers = sql.execute_query(connection, query=f"INSERT INTO teacher (firstname,lastname,room) VALUES ('{request.args['firstname']}','{request.args['lastname']}',{request.args['room']})")
     
+    insert_second_id_post('teacher', request.args['id'])
+
+    connection.commit()
+
     return 'Teacher successfully added!'
     
 
@@ -318,6 +324,7 @@ def del_teacher():
         teacher_id = request.args['id']
         query = f"DELETE FROM teacher WHERE id = {teacher_id}"
         sql.execute_query(connection, query=query)
+        connection.commit()
         return 'Teacher successfully removed!'
     else:
         return 'ERROR: no Child ID provided'
@@ -386,7 +393,12 @@ def add_children():
     elif room_status_code == '200':
         return 'ERROR: The room with that id needs another teacher before this student can be added'
     else:
-        sql.execute_query(connection, query=f"INSERT INTO child (firstname, lastname, age, room) VALUES ('{request.args['firstname']}','{request.args['lastname']}',{request.args['age']},{request.args['room']})") 
+        sql.execute_query(connection, query=f"INSERT INTO child (firstname, lastname, age, room) VALUES ('{request.args['firstname']}','{request.args['lastname']}',{request.args['age']},{request.args['room']})")
+
+        insert_second_id_post('teacher', request.args['id'])
+
+        connection.commit()
+
         return 'Child successfully added to classroom!'
 
 # update children
@@ -446,6 +458,7 @@ def del_child():
         child_id = request.args['id']
         query = f"DELETE FROM child WHERE id = {child_id}"
         sql.execute_query(connection, query=query)
+        connection.commit()
         return 'Child successfully removed from classroom!'
     else:
         return 'ERROR: no Child ID provided'
