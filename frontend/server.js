@@ -44,7 +44,7 @@ app.get('/teacher', (req, res) => {
 });
 
 // GET method
-app.post('/teacher', async (req, res) => {
+app.post('/teacher/get', async (req, res) => {
   var room_id = parseInt(req.body.room_id_get);
   console.log(room_id);
   
