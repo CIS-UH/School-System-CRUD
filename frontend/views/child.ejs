@@ -41,7 +41,7 @@
                         <div><input type="submit" class="btn btn-primary" id = "getButton" value ="GET" formaction="/child/get"> <br> <br>
                         </div>
                         <div data-mdb-input-init class="form-outline">
-                            <input type="number" name="room_id_get" class="form-control bg-dark" required/>
+                            <input type="text" name="room_id_get" class="form-control bg-dark" required/>
                             <label class="form-label ms-2" for="room_id" >Room ID</label>
                         </div>
                     </div>
@@ -59,6 +59,8 @@
                                       Firstname: '<%= obj.firstname %>'  
                                       Lastname: '<%= obj.lastname %>'
                                       Room: '<%= obj.room %>'
+                                      Secondary ID:'<%= obj.second_id%>'
+                                      ID: '<%= obj.id%>'
                                       <%
                                     }
                                   }
@@ -80,7 +82,7 @@
                         <input type="text"  name="firstname_post" placeholder="First Name" required>
                         <input type="text"  name="lastname_post" placeholder="Last Name" required>
                         <input type="text"  name="age_post" placeholder="Age" required>
-                        <input type="text" name="room_id_post" placeholder="Room" required>
+                        <input type="text" name="room_id_post" placeholder="Room Letter" required>
                     </div>
                 </form>
             </div>
@@ -92,11 +94,11 @@
                     <h4>Update A Child</h4> <br>
                     <input type="submit" class="btn btn-primary" value="PUT" formaction="/child/put" />
                     <br> <br>
-                    <input type="text"  name="id_put" placeholder="ID" required>
+                    <input type="text"  name="id_put" placeholder="Seconday ID" required>
                     <input type="text" name = "firstname_put" placeholder = "First Name" required />
                     <input type="text" name= "lastname_put" placeholder = "Last Name" required />
                     <input type="text"  name="age_put" placeholder="Age" required>
-                    <input type="text" name= "room_id_put" placeholder = "Room" required />
+                    <input type="text" name= "room_id_put" placeholder = "Room Letter" required />
                 </form>
             </div>
 
@@ -107,7 +109,7 @@
                     <h4>Remove A Child From A Classroom</h4> <br>
                     <input type="submit" class="btn btn-primary" value="DELETE" formaction="/child/delete" />
                     <br> <br>
-                    <input type="text" name = "ID_delete" placeholder = "Child ID" required/>
+                    <input type="text" name = "ID_delete" placeholder = "Child Secondary ID" required/>
                 </form>
                 
         </div>
