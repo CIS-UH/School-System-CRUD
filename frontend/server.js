@@ -41,12 +41,14 @@ app.post('/facility', async(req,res) =>{
 
 //Teacher APIs
 app.get('/teacher', (req, res) => {
-  res.render('teacher', {getData: null}); 
+  res.render('teacher', {
+    getData: null
+  }); 
 });
 
 // GET method
 app.post('/teacher/get', async (req, res) => {
-  var room_id = req.body.room_id_get;
+  var room_id = req.body.room_id_get.toUpperCase();
   console.log(room_id);
   
   try {
@@ -55,6 +57,7 @@ app.post('/teacher/get', async (req, res) => {
 
       // Extract data from API response
       var data = apiResponse.data;
+      console.log(data);
 
       // RENDER THE PAGE WITH THE DATA
       res.render('teacher', { getData: JSON.stringify(data) });
@@ -67,7 +70,7 @@ app.post('/teacher/get', async (req, res) => {
 
 //POST Method
 app.post('/teacher/post', async (req, res) => {
-  var room_id = req.body.room_id_post;
+  var room_id = req.body.room_id_post.toUpperCase();
   var firstname = req.body.firstname_post;
   var lastname = req.body.lastname_post;
   console.log(room_id, firstname, lastname);
@@ -89,12 +92,12 @@ app.post('/teacher/post', async (req, res) => {
 
 //PUT Method
 app.post('/teacher/put', async (req, res) => {
-  var id = req.body.id_put;
+  var id = req.body.id_put.toUpperCase();
   var firstname = req.body.firstname_put;
   var lastname = req.body.lastname_put;
   var room_id = "";
   if(req.body.room_id_put != ""){
-    var room_id = req.body.room_id_put;
+    var room_id = req.body.room_id_put.toUpperCase();
   }
   
   console.log(id, firstname, lastname, room_id);
@@ -114,10 +117,19 @@ app.post('/teacher/put', async (req, res) => {
       
       // Extract data from API response
       var data = apiResponse.data;
+      console.log(data);
 
+      if(data == "ERROR: TEACHER ID not found"){
+        res.render('teacher', {
+          getData: null,
+          wrongID: true
+        })
+      }
 
       // Render EJS template with null data
-      res.render('teacher', { getData: null });
+      res.render('teacher', { 
+        getData: null
+      });
   } catch (error) {
       // Handle errors
       console.error('Error fetching data:', error);
@@ -136,6 +148,7 @@ app.post('/teacher/delete', async (req, res) => {
       // Extract data from API response
       var data = apiResponse.data;
       console.log(data);
+      
 
       // Render EJS template with null data
       res.render('teacher', { getData: null });
