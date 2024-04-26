@@ -436,13 +436,17 @@ def update_child():
 # delete child from db
 @app.route('/api/child', methods=['DELETE'])
 def del_child():
-    if 'id' in request.args:
-        child_id = request.args['id']
-        query = f"DELETE FROM child WHERE second_id = '{child_id}'"
-        sql.execute_query(connection, query=query)
-        connection.commit()
-        return 'Child successfully removed from classroom!'
-    else:
+    if not 'id' in request.args:
         return 'ERROR: no Child ID provided'
+    
+    child = sql.execute_read_query(connection, query=f"SELECT * FROM child WHERE second_id = '{request.args['id']}'")
+
+    if not child:
+        return 'ERROR: child not found'
+
+    sql.execute_query(connection, query=f"DELETE FROM child WHERE second_id = '{request.args['id']}'")
+
+    return 'Child successfully removed from classroom!'
+
 
 app.run()

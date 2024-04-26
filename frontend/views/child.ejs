@@ -60,8 +60,7 @@
                                       Lastname: '<%= obj.lastname %>'
                                       Room: '<%= obj.room %>'
                                       AGE: '<%= obj.age %>'
-                                      Secondary ID:'<%= obj.second_id%>'
-                                      ID: '<%= obj.id%>'
+                                      ID:'<%= obj.second_id%>'
                                       <%
                                     }
                                   }
@@ -95,11 +94,11 @@
                     <h4>Update A Child</h4> <br>
                     <input type="submit" class="btn btn-primary" value="PUT" formaction="/child/put" />
                     <br> <br>
-                    <input type="text"  name="id_put" placeholder="Seconday ID" required>
-                    <input type="text" name = "firstname_put" placeholder = "First Name" required />
-                    <input type="text" name= "lastname_put" placeholder = "Last Name" required />
-                    <input type="text"  name="age_put" placeholder="Age" required>
-                    <input type="text" name= "room_id_put" placeholder = "Room Letter" required />
+                    <input type="text"  name="id_put" placeholder="ID" required>
+                    <input type="text" name = "firstname_put" placeholder = "First Name"  />
+                    <input type="text" name= "lastname_put" placeholder = "Last Name"  />
+                    <input type="text"  name="age_put" placeholder="Age" >
+                    <input type="text" name= "room_id_put" placeholder = "Room Letter"  />
                 </form>
             </div>
 
@@ -110,7 +109,7 @@
                     <h4>Remove A Child From A Classroom</h4> <br>
                     <input type="submit" class="btn btn-primary" value="DELETE" formaction="/child/delete" />
                     <br> <br>
-                    <input type="text" name = "ID_delete" placeholder = "Child Secondary ID" required/>
+                    <input type="text" name = "ID_delete" placeholder = "Child ID" required/>
                 </form>
                 
         </div>
