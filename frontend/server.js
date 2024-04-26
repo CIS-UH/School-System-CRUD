@@ -191,7 +191,7 @@ app.post('/child/get', async (req, res) => {
 app.post('/child/post', async (req, res) => {
   var firstname = req.body.firstname_post;
   var lastname = req.body.lastname_post;
-  var room_id = parseInt(req.body.room_id_post);
+  var room_id = req.body.room_id_post;
   var age = parseInt(req.body.age_post);
   console.log(firstname, lastname, room_id, age);
   try {

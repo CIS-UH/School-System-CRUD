@@ -113,7 +113,7 @@ def add_fac():
     cursor = connection.cursor(dictionary=True)
     cursor.execute('INSERT INTO facility VALUES (%s,%s,%s)', (request.args['id'],request.args['name']))
 
-    insert_second_id_post('faciliy',request.args['id'])
+    insert_second_id_post('facility',request.args['id'])
     connection.commit()
 
     return 'Facility successfully added'
@@ -389,7 +389,7 @@ def add_children():
     if 'age' not in request.args:
         return 'ERROR: no age provided'
 
-    room = int(request.args['room'])
+    room = request.args['room']
     if not class_exists(room):
         return 'ERROR: there is no classroom with that id in the database'
     
@@ -402,7 +402,7 @@ def add_children():
     else:
         sql.execute_query(connection, query=f"INSERT INTO child (firstname, lastname, age, room) VALUES ('{request.args['firstname']}','{request.args['lastname']}',{request.args['age']},{request.args['room']})")
 
-        insert_second_id_post('teacher', request.args['id'])
+        insert_second_id_post('child', request.args['id'])
 
         connection.commit()
 
