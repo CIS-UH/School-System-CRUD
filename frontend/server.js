@@ -167,7 +167,7 @@ app.get('/child', (req, res) => {
 
 // GET method
 app.post('/child/get', async (req, res) => {
-  var room_id = parseInt(req.body.room_id_get);
+  var room_id = req.body.room_id_get;
   console.log(room_id);
   
   try {
@@ -254,7 +254,7 @@ app.post('/child/put', async (req, res) => {
 
 //DELETE Method
 app.post('/child/delete', async (req, res) => {
-  var id = parseInt(req.body.ID_delete);
+  var id = req.body.ID_delete;
   console.log(id);
   try {
       // Make API call

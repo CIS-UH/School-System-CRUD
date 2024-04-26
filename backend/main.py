@@ -463,7 +463,7 @@ def update_child():
 def del_child():
     if 'id' in request.args:
         child_id = request.args['id']
-        query = f"DELETE FROM child WHERE id = {child_id}"
+        query = f"DELETE FROM child WHERE second_id = {child_id}"
         sql.execute_query(connection, query=query)
         connection.commit()
         return 'Child successfully removed from classroom!'
