@@ -196,7 +196,7 @@ app.post('/child/post', async (req, res) => {
   console.log(firstname, lastname, room_id, age);
   try {
       // Make API call
-      const apiResponse = await axios.post(`http://localhost:5000/api/child?firstname=${firstname}&lastname=${lastname}&room=${room_id}&age=${age}`);
+      const apiResponse = await axios.post(`http://localhost:5000/api/child?firstname=${firstname}&lastname=${lastname}&age=${age}&room=${room_id}`);
 
       // Extract data from API response
       var data = apiResponse.data;
@@ -219,7 +219,7 @@ app.post('/child/put', async (req, res) => {
   var age = req.body.age_put
   var room_id = "";
   if(req.body.room_id_put != ""){
-    var room_id = parseInt(req.body.room_id_put);
+    var room_id = req.body.room_id_put;
   }
     console.log(id, firstname, lastname, age, room_id);
   try {
