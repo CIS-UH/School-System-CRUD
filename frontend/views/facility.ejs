@@ -19,6 +19,15 @@
         />
     </head>
     <body>
+        <nav class="navbar navbar-expand-lg ">
+            <div class="container">
+              <a formaction="nav-link" href="/"
+                ><button class="btn btn-primary">
+                RETURN HOME
+                </button></a>
+            </div>
+        </nav>
+        <br>
         <h1>Welcome To the Facility Page!</h1>
         <p>This is where you can manage facility-related information.</p>
         <div class="container text-center p-4">  
@@ -37,8 +46,8 @@
                                   for (const obj of parsedData) {
                                     if (obj.ID !== 'ID') {  
                                       %>
+                                      ID:'<%= obj.second_id%>'
                                       Name: '<%= obj.name %>'
-                                      Secondary ID:'<%= obj.second_id%>' 
                                       <%
                                     }
                                   }
@@ -62,8 +71,7 @@
                     <div>
                         <input type="submit" class="btn btn-primary" value="POST" formaction="/facility/post" />
                         <br> <br>
-                        <input type="text" name="id_post" placeholder="Secondary ID" required>
-                        <input type="text"  name="firstname_post" placeholder="Name" required>
+                        <input type="text"  name="name_post" placeholder="Name" required>
                     </div>
                 </form>
             </div>
@@ -73,12 +81,13 @@
             <div class="card p-3">
                 <form id="put" method = "POST">
                     <h4>Update A Facility</h4> <br>
+                    <% if(typeof wrongID != "undefined") { %>
+                        <p> ID Invalid. Please try again. </p>
+                   <% }%>
                     <input type="submit" class="btn btn-primary" value="PUT" formaction="/facility/put" />
                     <br> <br>
-                    <input type="text" name = "id_put" placeholder = "Secondary ID" required />
-                    <input type="text" name = "firstname_put" placeholder = "First Name"  />
-                    <input type="text" name= "lastname_put" placeholder = "Last Name"  />
-                    <input type="text" name= "room_id_put" placeholder = "Room Letter"  />
+                    <input type="text" name = "id_put" placeholder = "ID" required />
+                    <input type="text" name = "name_put" placeholder = "Name"  />
                 </form>
             </div>
 
@@ -89,7 +98,7 @@
                     <h4>Remove A Facility From A Classroom</h4> <br>
                     <input type="submit" class="btn btn-primary" value="DELETE" formaction="/facility/delete" />
                     <br> <br>
-                    <input type="text" name = "ID_delete" placeholder = "Teacher Secondary ID" required/>
+                    <input type="text" name = "ID_delete" placeholder = "ID" required/>
                 </form>
                 
         </div>

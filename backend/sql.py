@@ -30,6 +30,7 @@ def execute_read_query(connection, query):
     cursor = connection.cursor(dictionary=True)
     result = None
     try:
+        print('Attempting query:', query)
         cursor.execute(query)
         result = cursor.fetchall()
         return result

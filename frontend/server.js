@@ -9,12 +9,6 @@ app.use(express.urlencoded({extended:false}));
 
 //axios
 const axios = require('axios');
-const config = {
-  headers: {
-    'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*'
-  }
-};
 
 //set views property and views engine
 app.set("views", path.resolve(__dirname, "views"));
@@ -25,9 +19,10 @@ const port = 8081;
 var auth = false;
 
 app.get('/facility', (req, res) => {
-  res.render('facility', {getData: null}); 
+  res.render('facility'); 
 });
 
+// FACILITY GET
 app.post('/facility', async(req,res) =>{
   try {
     const response = await axios.get('http://localhost:5000/api/facility');
@@ -39,7 +34,89 @@ app.post('/facility', async(req,res) =>{
   }
 });
 
-//Teacher APIs
+// FACILITY POST 
+app.post('/facility/post', async (req, res) => {
+  var name = req.body.name_post;
+
+  console.log(name);
+  try {
+      // Make API call
+      const apiResponse = await axios.post(`http://localhost:5000/api/facility?name=${name}`);
+
+      // Extract data from API response
+      var data = apiResponse.data;
+      console.log(data)
+
+      // Render EJS template with null data
+      res.render('facility');
+  } catch (error) {
+      // Handle errors
+      console.error('Error fetching data:', error);
+      res.status(500).send('Error fetching data', error);
+  }
+});
+
+//FACILITY PUT
+app.post('/facility/put', async (req, res) => {
+  var id = req.body.id_put.toUpperCase();
+  var name = req.body.name_put;
+
+  console.log(id,name)
+
+  //console.log(id, firstname, lastname, room_id);
+  try {
+      // Make API call
+      var apiCall = `http://localhost:5000/api/facility?id=${id}&name=${name}`
+
+      const apiResponse = await axios.put(apiCall);
+      
+      // Extract data from API response
+      var data = apiResponse.data;
+      console.log(data);
+
+      if(data == 'ERROR: facility not found'){
+        res.render('facility', {
+          getData: null,
+          wrongID: true
+        })
+      }
+      else{
+        // Render EJS template with null data
+        res.render('facility', { 
+          getData: null
+        });
+      }
+      
+  } catch (error) {
+      // Handle errors
+      console.error('Error fetching data:', error);
+      res.status(500).send('Error fetching data', error);
+  }
+});
+
+// FACILITY DELETE Method
+app.post('/facility/delete', async (req, res) => {
+  var id = req.body.ID_delete;
+  console.log(id);
+  try {
+      // Make API call
+      const apiResponse = await axios.delete(`http://localhost:5000/api/facility?id=${id}`);
+
+      // Extract data from API response
+      var data = apiResponse.data;
+      console.log(data);
+      
+
+      // Render EJS template with null data
+      res.render('facility', { getData: null });
+  } catch (error) {
+      // Handle errors
+      console.error('Error fetching data:', error);
+      res.status(500).send('Error fetching data', error);
+  }
+});
+
+//Teacher functions
 app.get('/teacher', (req, res) => {
   res.render('teacher', {
     getData: null

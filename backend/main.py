@@ -64,8 +64,6 @@ def insert_second_id_post(table, entryID):
     second_id = generate_second_id(str(entryID))
     sql.execute_query(connection, f"UPDATE {table} SET second_id='{second_id}' WHERE id = {entryID};")
 
-    
-
 #waiting for further clarification on log in API 
 # Simple authentication function
 def authenticate(username, password):
@@ -96,55 +94,52 @@ def get_fac():
 # add new facility
 @app.route('/api/facility', methods=['POST'])
 def add_fac():
-    facs = None
-    facs = sql.execute_read_query(connection,'SELECT * from facility')
 
-    if 'id' not in request.args:
-        return 'ERROR: no id provided, please try again'
+    facs = sql.execute_query(connection, query=f"INSERT INTO facility (name) VALUES ('{request.args['name']}')")
 
-
-    new_fac_id = request.args['id']
-
-    for fac in facs:
-        if fac['id'] == new_fac_id:
-            return "This facility ID already exists, please try again"
+    all_facs = sql.execute_read_query(connection,query=f"SELECT * FROM facility")
+    new_fac_id = all_facs[-1]['id']
     
-    # add new facility to db
-    cursor = connection.cursor(dictionary=True)
-    cursor.execute('INSERT INTO facility VALUES (%s,%s,%s)', (request.args['id'],request.args['name']))
-
-    insert_second_id_post('faciliy',request.args['id'])
-    connection.commit()
+    insert_second_id_post('facility', new_fac_id)
 
     return 'Facility successfully added'
 
 # update facility
 @app.route('/api/facility', methods=['PUT'])
 def update_fac():
+    # return err if no id provided
+    if not 'id' in request.args:
+        return 'ERROR: no id provided'
+    
+    # find a facility that has the given id
+    fac = sql.execute_read_query(connection, query=f"SELECT * FROM facility WHERE second_id = '{request.args['id']}'")
 
-    if 'id' not in request.args:
-        return 'ERROR: No id provided. Please try again'
+    # return err if the facility id provided does not exist
+    if not fac:
+        return 'ERROR: facility not found'
 
-    # facility to be updated
-    update_fac_id = request.args['id']
+    # update facility if it passes all the checks
+    sql.execute_query(connection, query=f"UPDATE facility SET name = '{request.args['name']}' WHERE second_id = '{request.args['id']}'")
 
-    # update facility in db
-    cursor = connection.cursor(dictionary=True)
-    cursor.execute('UPDATE facility SET name = %s WHERE id = %s', (request.args['name'],request.args['id']))
-    connection.commit()
-
-    return 'Facility successfully updated'
+    return 'Facility successfully updated!'
 
 # delete facility
 @app.route('/api/facility', methods=['DELETE'])
 def del_fac():
-    if 'id' in request.args:
-        facilities = sql.execute_read_query(connection, 'SELECT * FROM facility')
-        sql.execute_query(connection, query=f"DELETE FROM facility WHERE id = {request.args['id']}")
-    else:
-        return 'ERROR: no Facility ID provided'
+    # return err if no id provided
+    if not 'id' in request.args:
+        return 'ERROR: no id provided'
     
-    connection.commit()
+    # find a facility that has the given id
+    fac = sql.execute_read_query(connection, query=f"SELECT * FROM facility WHERE second_id = '{request.args['id']}'")
+
+    # return err if the facility id provided does not exist
+    if not fac:
+        return 'ERROR: facility not found'
+    
+    # delete facility if it passes all the checks
+    sql.execute_query(connection, query=f"DELETE FROM facility WHERE second_id = '{request.args['id']}'")
+
     return 'Facility successfully deleted!'
 
 # CLASSROOM METHODS
@@ -206,7 +201,7 @@ def add_classroom():
       
     classrooms = sql.execute_query(connection, query=f"INSERT INTO classroom (capacity,name,facility) VALUES ({request.args['capacity']},'{request.args['name']}',{request.args['facility']})")
 
-    insert_second_id_post('classroom',request.args['id'])
+
 
     return 'Classroom successfully added!'
 
