@@ -307,7 +307,7 @@ def update_teacher():
             return 'ERROR: Invalid room'
         
         teacher_id = request.args['id']
-        teacher = sql.execute_read_query(connection, f'SELECT * FROM teacher WHERE second_id = {teacher_id}')
+        teacher = sql.execute_read_query(connection, f"SELECT * FROM teacher WHERE second_id = '{teacher_id}'")
 
         if not teacher:
             return 'ERROR: Teacher ID not found'

@@ -56,6 +56,7 @@
                                   for (const obj of parsedData) {
                                     if (obj.ID !== 'ID') {  
                                       %>
+                                      ID: '<%= obj.second_id %>'
                                       Firstname: '<%= obj.firstname %>'  
                                       Lastname: '<%= obj.lastname %>'
                                       Room: '<%= obj.room %>'
@@ -90,7 +91,11 @@
             <div class="card p-3">
                 <form id="put" method = "POST">
                     <h4>Update A Teacher</h4> <br>
+                    <% if(typeof wrongID !== "undefined") { %>
+                        <p> ID Invalid. Please try again. </p>
+                   <% }%>
                     <input type="submit" class="btn btn-primary" value="PUT" formaction="/teacher/put" />
+
                     <br> <br>
                     <input type="text" name = "id_put" placeholder = "ID" required />
                     <input type="text" name = "firstname_put" placeholder = "First Name"  />
@@ -104,6 +109,9 @@
             <div id="del" class="card p-3">
                 <form method = "POST">
                     <h4>Remove A Teacher From A Classroom</h4> <br>
+                    <% if(typeof wrongID !== "undefined") { %>
+                        <p> ID Invalid. Please try again. </p>
+                   <% }%>
                     <input type="submit" class="btn btn-primary" value="DELETE" formaction="/teacher/delete" />
                     <br> <br>
                     <input type="text" name = "ID_delete" placeholder = "Teacher_ID" required/>
