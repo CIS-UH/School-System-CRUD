@@ -92,6 +92,9 @@
             <div class="card p-3">
                 <form id="put" method = "POST">
                     <h4>Update A Child</h4> <br>
+                    <% if(typeof wrongID !== "undefined") { %>
+                        <p> ID Invalid. Please try again. </p>
+                   <% }%>
                     <input type="submit" class="btn btn-primary" value="PUT" formaction="/child/put" />
                     <br> <br>
                     <input type="text"  name="id_put" placeholder="ID" required>

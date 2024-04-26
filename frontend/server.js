@@ -320,8 +320,16 @@ app.post('/child/put', async (req, res) => {
     var data = apiResponse.data;
     console.log(data);
 
-    // Render EJS template with null data
-    res.render('teacher', { getData: null });
+    if(data != 'Child successfully updated!'){
+      res.render('child', {
+        wrongID: true
+      });
+    }
+    else{
+      // Render EJS template with null data
+      res.render('child', { getData: null });
+    }
+    
 } catch (error) {
     // Handle errors
     console.error('Error fetching data:', error);
