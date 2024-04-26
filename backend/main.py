@@ -150,7 +150,7 @@ def del_fac():
 def facility_exists(facility):
     facs = sql.execute_read_query(connection,'SELECT * from facility')
     # https://stackoverflow.com/questions/3897499/check-if-value-already-exists-within-list-of-dictionaries-in-python
-    if not any(facility['id'] == int(facility) for fac in facs):
+    if not any(facility['second_id'] == facility for fac in facs):
         return False
     return True
 
@@ -162,26 +162,15 @@ def get_classrooms():
 # return all classrooms from a specific facility
 @app.route('/api/classroom', methods=['GET'])
 def get_classrooms_id():
-    classrooms = None
-    if 'facility' in request.args: #only if an id is provided, proceed
-        facility = int(request.args.get('facility'))
-
-        # execute sql query
-        classrooms = sql.execute_read_query(connection=connection,query=f'SELECT * from classroom WHERE facility = {facility}')
-
-        if len(classrooms) == 0:
-            return 'No classrooms were returned'
-
-        # find classroom(s) to return
-        results = []
-        for classroom in classrooms:
-            if classroom['facility'] == facility:
-                results.append(classroom)
-        return results
+    if 'facility' not in request.args:
+        return 'ERROR: no facility id provided'
     
-    # no facility error
-    elif 'facility' not in request.args:
-        return 'ERROR: no facility provided'
+    classes = sql.execute_read_query(connection, query=f"SELECT * FROM classroom WHERE facility='{request.args['facility']}'")
+
+    if not classes:
+        return 'ERROR: facility does not exist'
+    
+    return jsonify(classes)
     
 
 # add new classroom to db
@@ -190,18 +179,13 @@ def add_classroom():
     #   check for missing keys
     if ('facility' or 'name' or 'capacity') not in request.args:
         return 'ERROR: missing key(s), please try again'
-    
-    facility = int(request.args['facility'])
-    
-    if not facility_exists(facility):
-        return 'ERROR: provied facility does not exist in database'
-    
-
-    classrooms = sql.execute_read_query(connection,f'SELECT * from classroom WHERE facility = {facility}')
       
-    classrooms = sql.execute_query(connection, query=f"INSERT INTO classroom (capacity,name,facility) VALUES ({request.args['capacity']},'{request.args['name']}',{request.args['facility']})")
+    sql.execute_query(connection, query=f"INSERT INTO classroom (capacity,name,facility) VALUES ({request.args['capacity']},'{request.args['name']}','{request.args['facility']}')")
 
-
+    classes = sql.execute_read_query(connection, query= f"SELECT * FROM classroom")
+    new_class_id = classes[-1]['id']
+    
+    insert_second_id_post('classroom', new_class_id)
 
     return 'Classroom successfully added!'
 
@@ -209,8 +193,8 @@ def add_classroom():
 @app.route('/api/classroom', methods=['PUT'])
 def update_classroom():
     if 'id' in request.args:
-        class_id = int(request.args['id'])
-        classroom = sql.execute_read_query(connection, f'SELECT * FROM classroom WHERE id = {class_id}')
+        class_id = request.args['id']
+        classroom = sql.execute_read_query(connection, f"SELECT * FROM classroom WHERE second_id = '{class_id}'")
 
         if not classroom:
             return 'ERROR: Classroom ID not found'
@@ -218,25 +202,25 @@ def update_classroom():
         if 'facility' in request.args:
             if not facility_exists(request.args['facility']):
                 return 'ERROR: Provided facility does not exist in the database'
-            sql.execute_query(connection, query = f"UPDATE classroom SET facility = '{request.args['facility']}' WHERE id = {class_id}")
+            sql.execute_query(connection, query = f"UPDATE classroom SET facility = '{request.args['facility']}' WHERE second_id = '{class_id}'")
         if 'capacity' in request.args:
-            sql.execute_query(connection, query=f"UPDATE classroom SET capacity = {request.args['capacity']} WHERE id = {class_id}")
+            sql.execute_query(connection, query=f"UPDATE classroom SET capacity = {request.args['capacity']} WHERE second_id = '{class_id}'")
         if 'name' in request.args:
-            sql.execute_query(connection, query=f"UPDATE classroom SET name = '{request.args['name']}' WHERE id = {class_id}")
+            sql.execute_query(connection, query=f"UPDATE classroom SET name = '{request.args['name']}' WHERE second_id = '{class_id}'")
         if 'room' in request.args:
-            sql.execute_query(connection, query=f"UPDATE classroom SET room = '{request.args['room']}' WHERE id = {class_id}")
-
+            sql.execute_query(connection, query=f"UPDATE classroom SET room = '{request.args['room']}' WHERE second_id = '{class_id}'")
+    else:
         return 'ERROR: no classroom ID provided'
+    
     return 'Classroom successfully updated!'
 
 # delete a classroom
 @app.route('/api/classroom', methods=['DELETE'])
 def del_classroom():
     if 'id' in request.args:
-        classrooms = sql.execute_read_query(connection, 'SELECT * FROM classroom')
         if not class_exists(request.args['id']):
             return 'ERROR: provided id does not exist in the database'
-        sql.execute_query(connection, query=f"DELETE FROM classroom WHERE id = {request.args['id']}")
+        sql.execute_query(connection, query=f"DELETE FROM classroom WHERE second_id = '{request.args['id']}'")
     else:
         return 'ERROR: no classroom ID provided'
     
