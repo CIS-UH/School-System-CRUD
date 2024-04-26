@@ -46,7 +46,7 @@ app.get('/teacher', (req, res) => {
 
 // GET method
 app.post('/teacher/get', async (req, res) => {
-  var room_id = parseInt(req.body.room_id_get);
+  var room_id = req.body.room_id_get;
   console.log(room_id);
   
   try {
@@ -55,7 +55,6 @@ app.post('/teacher/get', async (req, res) => {
 
       // Extract data from API response
       var data = apiResponse.data;
-      console.log(data);
 
       // RENDER THE PAGE WITH THE DATA
       res.render('teacher', { getData: JSON.stringify(data) });
@@ -68,7 +67,7 @@ app.post('/teacher/get', async (req, res) => {
 
 //POST Method
 app.post('/teacher/post', async (req, res) => {
-  var room_id = parseInt(req.body.room_id_post);
+  var room_id = req.body.room_id_post;
   var firstname = req.body.firstname_post;
   var lastname = req.body.lastname_post;
   console.log(room_id, firstname, lastname);
@@ -78,7 +77,6 @@ app.post('/teacher/post', async (req, res) => {
 
       // Extract data from API response
       var data = apiResponse.data;
-      console.log(data);
 
       // Render EJS template with null data
       res.render('teacher', { getData: null });
@@ -91,12 +89,12 @@ app.post('/teacher/post', async (req, res) => {
 
 //PUT Method
 app.post('/teacher/put', async (req, res) => {
-  var id = parseInt(req.body.id_put);
+  var id = req.body.id_put;
   var firstname = req.body.firstname_put;
   var lastname = req.body.lastname_put;
   var room_id = "";
   if(req.body.room_id_put != ""){
-    var room_id = parseInt(req.body.room_id_put);
+    var room_id = req.body.room_id_put;
   }
   
   console.log(id, firstname, lastname, room_id);
@@ -113,10 +111,10 @@ app.post('/teacher/put', async (req, res) => {
         apiCall = apiCall + `&room=${room_id}`;
       }
       const apiResponse = await axios.put(apiCall);
-
+      
       // Extract data from API response
       var data = apiResponse.data;
-      console.log(data);
+
 
       // Render EJS template with null data
       res.render('teacher', { getData: null });
@@ -129,7 +127,7 @@ app.post('/teacher/put', async (req, res) => {
 
 //DELETE Method
 app.post('/teacher/delete', async (req, res) => {
-  var id = parseInt(req.body.ID_delete);
+  var id = req.body.ID_delete;
   console.log(id);
   try {
       // Make API call
@@ -153,6 +151,7 @@ app.post('/teacher/delete', async (req, res) => {
 app.get('/child', (req, res) => {
   res.render('child', {getData: null}); 
 });
+
 // GET method
 app.post('/child/get', async (req, res) => {
   var room_id = parseInt(req.body.room_id_get);
