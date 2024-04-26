@@ -50,9 +50,20 @@
                 <div class="row">
                     <div data-mdb-input-init class="form-outline">
                         <textarea readonly class="form-control" id="getOutput">
-                            <% if(getData != null) { %>
-                                <%= getData %>
-                            <% } %>
+                            <% if (typeof getData !== 'undefined' && getData !== null) { %>
+                                <%
+                                  const parsedData = JSON.parse(getData);
+                                  for (const obj of parsedData) {
+                                    if (obj.ID !== 'ID') {  
+                                      %>
+                                      Firstname: '<%= obj.firstname %>'  
+                                      Lastname: '<%= obj.lastname %>'
+                                      Room: '<%= obj.room %>'
+                                      <%
+                                    }
+                                  }
+                                %>
+                              <% } %>
                         </textarea>
                     </div>
                 </div>

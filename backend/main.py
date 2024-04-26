@@ -368,7 +368,6 @@ def get_children_from_room():
         return jsonify(sql.execute_read_query(connection, f"SELECT * FROM child WHERE room = '{room}'"))
     
     return 'ERROR: no room provided'
-    
 
 # add new children
 @app.route('/api/child', methods=['POST'])
