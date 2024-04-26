@@ -1,0 +1,136 @@
+<html data-mdb-theme="dark">
+    <head>
+        <title>Classroom</title>
+        <style>
+            p {
+                text-align: center;
+                justify-content: center;
+            }
+            h1 {
+                text-align: center;
+                justify-content: center;
+            }
+
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                background-color: #f0f0f0;
+                }
+                        
+        </style>
+        <meta charset="utf-8">
+        <!-- MDB -->
+        <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.2.0/mdb.min.css"
+        rel="stylesheet"
+        />
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg ">
+            <div class="container">
+              <a formaction="nav-link" href="/"
+                ><button class="btn btn-primary">
+                RETURN HOME
+                </button></a>
+            </div>
+        </nav>
+        <br>
+        <h1>Welcome To the Classroom Page!</h1>
+        <p>This is where you can manage Classroom-related information.</p>
+        <div class="container text-center p-4">  
+            <h2>Please perform a function</h2>
+            <br>  
+
+            <div class="card p-3">
+                <form id="get" method="POST">
+                    <h3>Return Classrooms in a Specific Facility</h3>
+                    <br>
+                    <div class="row">
+                        <div><input type="submit" class="btn btn-primary" id = "getButton" value ="GET" formaction="/classroom/get"> <br> <br>
+                        </div>
+                        <div data-mdb-input-init class="form-outline">
+                            <input type="text" name="facility_id_get" class="form-control bg-dark" required/>
+                            <label class="form-label ms-2" for="room_id" >Facility ID</label>
+                        </div>
+                    </div>
+                </form>
+                <br>
+                <div class="row">
+                    <div data-mdb-input-init class="form-outline">
+                        <textarea readonly class="form-control" id="getOutput">
+                            <% if (typeof getData !== 'undefined' && getData !== null) { %>
+                                <%
+                                  const parsedData = JSON.parse(getData);
+                                  for (const obj of parsedData) {
+                                    if (obj.ID !== 'ID') {  
+                                      %>
+                                      ID: '<%= obj.second_id %>'
+                                      Name: '<%= obj.name %>'  
+                                      Facility: '<%= obj.facility %>'
+                                      Capacity: '<%= obj.capacity %>'
+                                      <%
+                                    }
+                                  }
+                                %>
+                              <% } %>
+                        </textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- POST -->
+            <br>
+            <div class="card p-3">
+                <form id="post" method="POST">
+                    <h4>Add A Classroom to a Facility</h4> <br>
+                    <div>
+                        <input type="submit" class="btn btn-primary" value="POST" formaction="/classroom/post" />
+                        <br> <br>
+                        <input type="text" name="facility_id_post" placeholder="Facility ID" required>
+                        <input type="text"  name="name_post" placeholder="Name" required>
+                        <input type="text"  name="capacity_post" placeholder="Capacity" required>
+                    </div>
+                </form>
+            </div>
+
+            <!-- PUT -->
+            <br>
+            <div class="card p-3">
+                <form id="put" method = "POST">
+                    <h4>Update A Classroom</h4> <br>
+                    <% if(typeof wrongID !== "undefined") { %>
+                        <p> ID Invalid. Please try again. </p>
+                   <% }%>
+                    <input type="submit" class="btn btn-primary" value="PUT" formaction="/classroom/put" />
+
+                    <br> <br>
+                    <input type="text" name = "id_put" placeholder = "ID" required />
+                    <input type="text" name = "name_put" placeholder = "Name"  />
+                    <input type="text" name= "capacity_put" placeholder = "Capacity"  />
+                    <input type="text" name= "facility_id_put" placeholder = "Facility"  />
+                </form>
+            </div>
+
+            <!-- DELETE -->
+            <br>
+            <div id="del" class="card p-3">
+                <form method = "POST">
+                    <h4>Remove A Classroom</h4> <br>
+                    <% if(typeof wrongID !== "undefined") { %>
+                        <p> ID Invalid. Please try again. </p>
+                   <% }%>
+                    <input type="submit" class="btn btn-primary" value="DELETE" formaction="/classroom/delete" />
+                    <br> <br>
+                    <input type="text" name = "ID_delete" placeholder = "classroom_ID" required/>
+                </form>
+                
+        </div>
+
+        <!-- MDB -->
+        <script>
+        type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.2.0/mdb.umd.min.js"
+        </script>
+    </body>
+</html>

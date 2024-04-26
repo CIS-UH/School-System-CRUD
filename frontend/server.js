@@ -116,12 +116,129 @@ app.post('/facility/delete', async (req, res) => {
   }
 });
 
-//Teacher functions
-app.get('/teacher', (req, res) => {
-  res.render('teacher', {
-    getData: null
-  }); 
+app.get('/classroom', (req, res) => {
+  res.render('classroom'); 
 });
+
+// CLASSROOM GET method
+app.post('/classroom/get', async (req, res) => {
+  var facility_id = req.body.facility_id_get.toUpperCase();
+  console.log(facility_id);
+  
+  try {
+    // Make API call
+    const apiResponse = await axios.get(`http://localhost:5000/api/classroom?facility=${facility_id}`);
+
+    // Extract data from API response
+    var data = apiResponse.data;
+   // console.log(data);
+
+    // RENDER THE PAGE WITH THE DATA
+    res.render('classroom', {getData: JSON.stringify(data)});
+    } catch (error) {
+      // Handle errors
+      console.error('Error fetching data:', error);
+      res.status(500).send('Error fetching data', error);
+    }
+});
+
+//POST Method
+app.post('/classroom/post', async (req, res) => {
+  var facility_id = req.body.facility_id_post.toUpperCase();
+  var name = req.body.name_post;
+  var capacity = req.body.capacity_post;
+  console.log(facility_id, name, capacity);
+  try {
+      // Make API call
+      const apiResponse = await axios.post(`http://localhost:5000/api/classroom?facility=${facility_id}&name=${name}&capacity=${capacity}`);
+
+      // Extract data from API response
+      var data = apiResponse.data;
+      console.log(data);
+
+      // Render EJS template with null data
+      res.render('classroom', { getData: null });
+  } catch (error) {
+      // Handle errors
+      console.error('Error fetching data:', error);
+      res.status(500).send('Error fetching data', error);
+  }
+});
+
+//PUT Method
+app.post('/classroom/put', async (req, res) => {
+  var id = req.body.id_put.toUpperCase();
+  var name = req.body.name_put;
+  var capacity = req.body.capacity_put;
+  var facility_id = "";
+  if(req.body.facility_id_put != ""){
+    var facility_id = req.body.facility_id_put.toUpperCase();
+  }
+  
+  console.log(id,name,capacity,facility_id);
+  try {
+      // Make API call
+      var apiCall = `http://localhost:5000/api/classroom?id=${id}`
+      if (name != ""){
+        apiCall = apiCall + `&name=${name}`;
+      }
+      if (capacity != ""){
+        apiCall = apiCall + `&capacity=${capacity}`;
+      }
+      if (facility_id != ""){
+        apiCall = apiCall + `&facility=${facility_id}`;
+      }
+      const apiResponse = await axios.put(apiCall);
+      
+      // Extract data from API response
+      var data = apiResponse.data;
+      console.log(data);
+
+      if(data != 'Classroom successfully updated!'){
+        res.render('classroom', {
+          getData: null,
+          wrongID: true
+        })
+      }
+      else {
+        // Render EJS template with null data
+      res.render('classroom', { 
+        getData: null
+      });
+      }
+      
+  } catch (error) {
+      // Handle errors
+      console.error('Error fetching data:', error);
+      res.status(500).send('Error fetching data', error);
+  }
+});
+
+//DELETE Method
+app.post('/classroom/delete', async (req, res) => {
+  var id = req.body.ID_delete;
+  console.log(id);
+  try {
+      // Make API call
+      const apiResponse = await axios.delete(`http://localhost:5000/api/classroom?id=${id}`);
+
+      // Extract data from API response
+      var data = apiResponse.data;
+      console.log(data);
+      
+
+      // Render EJS template with null data
+      res.render('classroom', { getData: null });
+  } catch (error) {
+      // Handle errors
+      console.error('Error fetching data:', error);
+      res.status(500).send('Error fetching data', error);
+  }
+});
+
+app.get('/teacher', (req,res) => {
+  res.render('teacher')
+})
 
 // GET method
 app.post('/teacher/get', async (req, res) => {
