@@ -22,7 +22,7 @@ masterPassword = "TeacherPassword"
 
 #create second_id
 def generate_second_id(idSTR):
-    result = ""
+    result = ''
 
     for char in idSTR[::1]:
         if char == '0':
@@ -58,12 +58,13 @@ def insert_second_id_all(table):
 
         connection.commit()
 
+# updates second_id for latest entry
 def insert_second_id_post(table, entryID):
 
     second_id = generate_second_id(str(entryID))
     sql.execute_query(connection, f"UPDATE {table} SET second_id='{second_id}' WHERE id = {entryID};")
 
-    connection.commit()
+    
 
 #waiting for further clarification on log in API 
 # Simple authentication function
@@ -275,7 +276,7 @@ def get_teachers():
 def get_teachers_from_room():
     if 'room' in request.args:
         room = request.args['room']
-        return jsonify(sql.execute_read_query(connection, f"SELECT * FROM teacher WHERE second_id = '{room}'"))
+        return jsonify(sql.execute_read_query(connection, f"SELECT * FROM teacher WHERE room = '{room}'"))
     
 # add new teacher
 @app.route('/api/teacher', methods=['POST'])
@@ -288,12 +289,13 @@ def add_teacher():
         return 'ERROR: Please provide a firstname'
     if 'lastname' not in request.args:
         return 'ERROR: Please provide a lastname'
-    teachers = sql.execute_query(connection, query=f"INSERT INTO teacher (firstname,lastname,room) VALUES ('{request.args['firstname']}','{request.args['lastname']}',{request.args['room']})")
+    teachers = sql.execute_query(connection, query=f"INSERT INTO teacher (firstname,lastname,room) VALUES ('{request.args['firstname']}','{request.args['lastname']}','{request.args['room']}')")
+
+    all_teachers = sql.execute_read_query(connection, query=f"SELECT * FROM teacher")
+    new_teacher_id = all_teachers[-1]['id']
     
-    insert_second_id_post('teacher', request.args['id'])
-
+    insert_second_id_post('teacher', new_teacher_id)
     connection.commit()
-
     return 'Teacher successfully added!'
     
 
@@ -304,18 +306,20 @@ def update_teacher():
         if 'room' in request.args and not class_exists(request.args['room']):
             return 'ERROR: Invalid room'
         
-        teacher_id = int(request.args['id'])
-        teacher = sql.execute_read_query(connection, f'SELECT * FROM teacher WHERE id = {teacher_id}')
+        teacher_id = request.args['id']
+        teacher = sql.execute_read_query(connection, f'SELECT * FROM teacher WHERE second_id = {teacher_id}')
 
         if not teacher:
             return 'ERROR: Teacher ID not found'
 
         if 'firstname' in request.args:
-            sql.execute_query(connection, f"UPDATE teacher SET firstname = '{request.args['firstname']}' WHERE id = {teacher_id}")
+            
+            sql.execute_query(connection, query=f"UPDATE teacher SET firstname = '{request.args['firstname']}' WHERE second_id = '{teacher_id}'")
+            
         if 'lastname' in request.args:
-            sql.execute_query(connection, f"UPDATE teacher SET lastname = '{request.args['lastname']}' WHERE id = {teacher_id}")
+            sql.execute_query(connection, query=f"UPDATE teacher SET lastname = '{request.args['lastname']}' WHERE second_id = '{teacher_id}'")
         if 'room' in request.args:
-            sql.execute_query(connection, f"UPDATE teacher SET room = '{request.args['room']}' WHERE id = {teacher_id}")  # Enclose room value in single quotes
+            sql.execute_query(connection, query=f"UPDATE teacher SET room = '{request.args['room']}' WHERE second_id = '{teacher_id}'")  # Enclose room value in single quotes
     else:
         return 'ERROR: no teacher ID provided'
     
@@ -326,7 +330,7 @@ def update_teacher():
 def del_teacher():
     if 'id' in request.args:
         teacher_id = request.args['id']
-        query = f"DELETE FROM teacher WHERE id = {teacher_id}"
+        query = f"DELETE FROM teacher WHERE second_id = '{teacher_id}'"
         sql.execute_query(connection, query=query)
         connection.commit()
         return 'Teacher successfully removed!'
