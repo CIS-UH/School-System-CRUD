@@ -395,9 +395,9 @@ def add_children():
     elif room_status_code == '200':
         return 'ERROR: The room with that id needs another teacher before this student can be added'
     else:
-        sql.execute_query(connection, query=f"INSERT INTO child (firstname, lastname, age, room) VALUES ('{request.args['firstname']}','{request.args['lastname']}','{request.args['age']}','{request.args['room']}')")
+        sql.execute_query(connection, query=f"INSERT INTO child (firstname, lastname, age, room) VALUES ('{request.args['firstname']}','{request.args['lastname']}',{request.args['age']},'{request.args['room']}')")
 
-        all_children = sql.execute_read_query(connection, query=f"SELECT * FROM teacher")
+        all_children = sql.execute_read_query(connection, query=f"SELECT * FROM child")
         new_child_id = all_children[-1]['id']
     
         insert_second_id_post('child', new_child_id)
